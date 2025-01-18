@@ -1,0 +1,179 @@
+/* General styles for the calculator */
+body {
+    font-family: Arial, sans-serif; /* Default font for consistency across browsers */
+    margin: 0; /* Remove default body margin */
+    padding: 0; /* Remove default body padding */
+    background-color: #f4f4f4; /* Light gray background for subtle contrast */
+    display: flex; /* Flexbox for centering content */
+    justify-content: center; /* Center content horizontally */
+    align-items: flex-start; /* Align content to the top */
+    min-height: 100vh; /* Ensure the content fills the viewport height */
+}
+
+.container {
+    width: 90%; /* Default width relative to viewport */
+    max-width: 350px; /* Maximum width to maintain layout */
+    background-color: #ffffff; /* White background for content contrast */
+    padding: 20px; /* Add space inside the container */
+    margin-top: 20px; /* Space from the top of the viewport */
+    border-radius: 10px; /* Rounded corners for aesthetics */
+    border: 1px solid #ddd; /* Light gray border for subtle framing */
+    border-top: 5px solid #25D366; /* Green accent on top border */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    box-sizing: border-box; /* Include padding and border in dimensions */
+}
+
+.logo {
+    display: flex; /* Flexbox for centering */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    margin-bottom: 20px; /* Space below the logo */
+}
+
+.logo img {
+    max-width: 100px; /* Restrict logo width */
+    height: auto; /* Maintain aspect ratio */
+}
+
+h2 {
+    text-align: center; /* Center-align heading */
+    font-size: 20px; /* Standard heading size */
+    margin-bottom: 20px; /* Space below the heading */
+    color: #333333; /* Dark gray for readability */
+}
+
+label {
+    display: block; /* Ensure labels appear on new lines */
+    margin-top: 10px; /* Space above labels */
+    font-size: 14px; /* Standard font size for labels */
+    color: #555555; /* Medium gray for label text */
+}
+
+input, select, button {
+    width: calc(100% - 20px); /* Consistent width with padding */
+    max-width: 330px; /* Match container width */
+    padding: 10px; /* Space inside inputs */
+    margin-top: 8px; /* Space above elements */
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 16px; /* Standard font size for inputs */
+    box-sizing: border-box; /* Include padding and border in dimensions */
+}
+
+button {
+    background-color: #25D366; /* WhatsApp green for buttons */
+    color: #ffffff; /* White text for contrast */
+    border: none; /* Remove default border */
+    cursor: pointer; /* Pointer cursor for clickable elements */
+    font-size: 18px; /* Larger font size for emphasis */
+    font-weight: bold; /* Bold text for buttons */
+    margin-top: 15px; /* Space above buttons */
+    padding: 15px 20px; /* Balanced padding for buttons */
+    border-radius: 5px; /* Rounded corners */
+    width: calc(100% - 20px); /* Match container width */
+    max-width: 330px; /* Keep consistent with container */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth hover effects */
+}
+
+button:hover {
+    background-color: #1caa57; /* Darker green on hover */
+    transform: scale(1.05); /* Slight scaling for hover effect */
+}
+
+/* WhatsApp Button Styles */
+.whatsapp-button {
+    display: flex; /* Flexbox for alignment */
+    align-items: center; /* Center items vertically */
+    justify-content: space-between; /* Space between text and icon */
+    padding: 10px 20px; /* Padding for button content */
+    background-color: #25D366; /* WhatsApp green */
+    color: white; /* White text */
+    font-size: 16px; /* Standard font size */
+    font-weight: bold; /* Bold text for emphasis */
+    text-decoration: none; /* Remove underline */
+    border-radius: 5px; /* Rounded corners */
+    max-width: 400px; /* Limit maximum width */
+    margin: auto; /* Center align button */
+    transition: all 0.3s ease; /* Smooth hover effects */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.whatsapp-button:hover {
+    background-color: #1caa57; /* Darker green on hover */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Deeper shadow */
+    transform: scale(1.05); /* Slight hover scaling */
+}
+
+/* Results and Message Area */
+#results:empty,
+#messageArea:empty {
+    display: none; /* Hide empty sections */
+}
+
+#results:not(:empty),
+#messageArea:not(:empty) {
+    margin-top: 20px; /* Space above non-empty sections */
+}
+
+#results,
+#messageArea {
+    padding: 15px; /* Padding inside result areas */
+    background-color: #f9f9f9; /* Light gray background */
+    border: 1px solid #ddd; /* Light border */
+    border-radius: 5px; /* Rounded corners */
+}
+
+.message {
+    margin-bottom: 20px; /* Space below messages */
+    padding: 15px; /* Padding inside messages */
+    border-radius: 8px; /* Rounded corners for messages */
+    font-family: Arial, sans-serif; /* Consistent font */
+}
+
+.message.info {
+    background-color: #cce5ff; /* Light blue background for info */
+    color: #004085; /* Dark blue text */
+    border: 1px solid #b8daff; /* Blue border */
+}
+
+.message.error {
+    background-color: #f8d7da; /* Light red background for errors */
+    color: #721c24; /* Dark red text */
+    border: 1px solid #f5c6cb; /* Red border */
+}
+
+/* Responsive styles for small screens */
+@media (max-width: 600px) {
+    body {
+        padding: 10px; /* Reduce padding for small screens */
+    }
+
+    .container {
+        width: 95%; /* Increase width slightly */
+        max-width: 350px; /* Maintain layout consistency */
+        padding: 15px; /* Adjust padding for smaller devices */
+        margin: 0 auto; /* Center container */
+        margin-top: 15px; /* Adjust top margin */
+        border-radius: 10px; /* Maintain rounded corners */
+    }
+
+    h2 {
+        font-size: 18px; /* Slightly smaller heading size */
+    }
+
+    input, select, button {
+        font-size: 14px; /* Adjust font size */
+        padding: 8px; /* Adjust padding for smaller inputs */
+    }
+
+    button {
+        font-size: 15px; /* Adjust button font size */
+        padding: 10px; /* Adjust button padding */
+    }
+
+    #results, .message-area {
+        padding: 10px; /* Adjust padding for results */
+        border-radius: 8px; /* Maintain rounded corners */
+    }
+}
