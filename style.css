@@ -1,179 +1,433 @@
 /* General styles for the calculator */
 body {
-    font-family: Arial, sans-serif; /* Default font for consistency across browsers */
-    margin: 0; /* Remove default body margin */
-    padding: 0; /* Remove default body padding */
-    background-color: #f4f4f4; /* Light gray background for subtle contrast */
-    display: flex; /* Flexbox for centering content */
-    justify-content: center; /* Center content horizontally */
-    align-items: flex-start; /* Align content to the top */
-    min-height: 100vh; /* Ensure the content fills the viewport height */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
 }
 
 .container {
-    width: 90%; /* Default width relative to viewport */
-    max-width: 350px; /* Maximum width to maintain layout */
-    background-color: #ffffff; /* White background for content contrast */
-    padding: 20px; /* Add space inside the container */
-    margin-top: 20px; /* Space from the top of the viewport */
-    border-radius: 10px; /* Rounded corners for aesthetics */
-    border: 1px solid #ddd; /* Light gray border for subtle framing */
-    border-top: 5px solid #25D366; /* Green accent on top border */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-    box-sizing: border-box; /* Include padding and border in dimensions */
+    width: 90%; /* Default width for desktop */
+    max-width: 350px; /* Limit max width for larger devices */
+    background-color: #ffffff;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd; /* Border around the container */
+    border-top: 5px solid #a4e053; /* Add the green border on top */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    box-sizing: border-box; /* Ensure border and padding are included in width/height */
 }
 
 .logo {
-    display: flex; /* Flexbox for centering */
-    justify-content: center; /* Center content horizontally */
-    align-items: center; /* Center content vertically */
-    margin-bottom: 20px; /* Space below the logo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
 .logo img {
-    max-width: 100px; /* Restrict logo width */
-    height: auto; /* Maintain aspect ratio */
+    max-width: 100px;
+    height: auto;
 }
 
 h2 {
-    text-align: center; /* Center-align heading */
-    font-size: 20px; /* Standard heading size */
-    margin-bottom: 20px; /* Space below the heading */
-    color: #333333; /* Dark gray for readability */
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #333333;
 }
 
 label {
-    display: block; /* Ensure labels appear on new lines */
-    margin-top: 10px; /* Space above labels */
-    font-size: 14px; /* Standard font size for labels */
-    color: #555555; /* Medium gray for label text */
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555555;
 }
 
+/* Standardize width for input, select, and button fields */
 input, select, button {
-    width: calc(100% - 20px); /* Consistent width with padding */
-    max-width: 330px; /* Match container width */
-    padding: 10px; /* Space inside inputs */
-    margin-top: 8px; /* Space above elements */
-    border: 1px solid #ccc; /* Light gray border */
-    border-radius: 5px; /* Rounded corners */
-    font-size: 16px; /* Standard font size for inputs */
-    box-sizing: border-box; /* Include padding and border in dimensions */
+    width: calc(100% - 20px); /* Ensure consistent width with padding */
+    max-width: 330px; /* Keep consistent with container padding */
+    padding: 10px;
+    margin-top: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box; /* Ensure padding and borders are included in width */
 }
 
 button {
-    background-color: #25D366; /* WhatsApp green for buttons */
-    color: #ffffff; /* White text for contrast */
-    border: none; /* Remove default border */
-    cursor: pointer; /* Pointer cursor for clickable elements */
-    font-size: 18px; /* Larger font size for emphasis */
-    font-weight: bold; /* Bold text for buttons */
-    margin-top: 15px; /* Space above buttons */
-    padding: 15px 20px; /* Balanced padding for buttons */
-    border-radius: 5px; /* Rounded corners */
-    width: calc(100% - 20px); /* Match container width */
-    max-width: 330px; /* Keep consistent with container */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
-    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth hover effects */
+    background-color: #a4e053;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    font-size: 18px; /* Increase font size */
+    font-weight: bold; /* Make text bold */
+    margin-top: 15px;
+    padding: 15px 20px; /* Adjust padding to balance button's size */
+    text-transform: uppercase; /* Optional: Make text uppercase for emphasis */
+    border-radius: 5px; /* Keep the rounded corners */
+    width: calc(100% - 20px); /* Keep the button width consistent */
+    max-width: 330px; /* Match the container size */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Optional: Add subtle shadow for a better appearance */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth hover effect */
 }
 
 button:hover {
-    background-color: #1caa57; /* Darker green on hover */
-    transform: scale(1.05); /* Slight scaling for hover effect */
+    background-color: #88c440; /* Change color on hover */
+    transform: scale(1.05); /* Slightly enlarge button on hover */
 }
+
 
 /* WhatsApp Button Styles */
 .whatsapp-button {
-    display: flex; /* Flexbox for alignment */
-    align-items: center; /* Center items vertically */
-    justify-content: space-between; /* Space between text and icon */
-    padding: 10px 20px; /* Padding for button content */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
     background-color: #25D366; /* WhatsApp green */
-    color: white; /* White text */
-    font-size: 16px; /* Standard font size */
-    font-weight: bold; /* Bold text for emphasis */
-    text-decoration: none; /* Remove underline */
-    border-radius: 5px; /* Rounded corners */
-    max-width: 400px; /* Limit maximum width */
-    margin: auto; /* Center align button */
-    transition: all 0.3s ease; /* Smooth hover effects */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 5px;
+    max-width: 400px;
+    margin: auto;
+    transition: all 0.3s ease; /* Smooth transition for hover effects */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
 .whatsapp-button:hover {
-    background-color: #1caa57; /* Darker green on hover */
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Deeper shadow */
-    transform: scale(1.05); /* Slight hover scaling */
+    background-color: #1caa57; /* Slightly darker green */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Deeper shadow on hover */
+    transform: scale(1.05); /* Scale up the button slightly */
+}
+
+.whatsapp-button img {
+    width: 62px;
+    height: 62px;
+    margin-left: 10px;
+    transition: transform 0.3s ease; /* Smooth rotation on hover */
+}
+
+.whatsapp-button img:hover {
+    animation: pulse 1s infinite; /* Infinite pulsing effect */
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* Results and Message Area */
 #results:empty,
 #messageArea:empty {
-    display: none; /* Hide empty sections */
+    display: none; /* Hide if empty */
 }
 
 #results:not(:empty),
 #messageArea:not(:empty) {
-    margin-top: 20px; /* Space above non-empty sections */
+    margin-top: 20px; /* Add spacing if content exists */
 }
 
 #results,
 #messageArea {
-    padding: 15px; /* Padding inside result areas */
-    background-color: #f9f9f9; /* Light gray background */
-    border: 1px solid #ddd; /* Light border */
-    border-radius: 5px; /* Rounded corners */
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
 }
 
+/* Dynamic Inputs */
+#windowInputs:empty {
+    display: none; /* Hide empty input section */
+}
+
+.window-input {
+    margin-bottom: 15px;
+}
+
+.window-input label {
+    font-size: 14px;
+    color: #555555;
+}
+
+.window-input input {
+    width: calc(100% - 20px); /* Consistent width with other fields */
+    max-width: 330px; /* Match the container */
+    padding: 10px;
+    margin-top: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box; /* Ensure input fits container */
+}
+
+/* Message Styles */
 .message {
-    margin-bottom: 20px; /* Space below messages */
-    padding: 15px; /* Padding inside messages */
-    border-radius: 8px; /* Rounded corners for messages */
-    font-family: Arial, sans-serif; /* Consistent font */
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
 }
 
 .message.info {
-    background-color: #cce5ff; /* Light blue background for info */
-    color: #004085; /* Dark blue text */
-    border: 1px solid #b8daff; /* Blue border */
+    background-color: #cce5ff;
+    color: #004085;
+    border: 1px solid #b8daff;
 }
 
 .message.error {
-    background-color: #f8d7da; /* Light red background for errors */
-    color: #721c24; /* Dark red text */
-    border: 1px solid #f5c6cb; /* Red border */
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.message h3 {
+    margin: 0 0 10px;
+    font-size: 16px;
+}
+
+.message p {
+    margin: 0;
+    font-size: 14px;
+    word-wrap: break-word;
 }
 
 /* Responsive styles for small screens */
 @media (max-width: 600px) {
     body {
-        padding: 10px; /* Reduce padding for small screens */
+        padding: 10px;
     }
 
     .container {
-        width: 95%; /* Increase width slightly */
-        max-width: 350px; /* Maintain layout consistency */
-        padding: 15px; /* Adjust padding for smaller devices */
-        margin: 0 auto; /* Center container */
-        margin-top: 15px; /* Adjust top margin */
-        border-radius: 10px; /* Maintain rounded corners */
+        width: 95%; /* Adjust width for small screens */
+        max-width: 350px; /* Limit to 350px maximum width even on small screens */
+        padding: 15px; /* Reduce padding for smaller screens */
+        margin: 0 auto; /* Center the container */
+        margin-top: 15px; /* Adjust the top margin */
+        border-radius: 10px;
+        border-top: 5px solid #a4e053; /* Ensure border-top is applied on mobile */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for mobile */
+        box-sizing: border-box; /* Include padding and border in dimensions */
     }
 
     h2 {
-        font-size: 18px; /* Slightly smaller heading size */
+        font-size: 18px;
+    }
+
+    label {
+        font-size: 13px;
     }
 
     input, select, button {
-        font-size: 14px; /* Adjust font size */
-        padding: 8px; /* Adjust padding for smaller inputs */
+        font-size: 14px;
+        padding: 8px;
     }
 
     button {
-        font-size: 15px; /* Adjust button font size */
-        padding: 10px; /* Adjust button padding */
+        font-size: 15px;
+        padding: 10px;
     }
 
     #results, .message-area {
-        padding: 10px; /* Adjust padding for results */
-        border-radius: 8px; /* Maintain rounded corners */
+        padding: 10px;
+        border-radius: 8px;
     }
+
+    .message h3 {
+        font-size: 14px;
+    }
+
+    .message p {
+        font-size: 13px;
+    }
+}
+
+/* FAQ Section Styles */
+.faq-section {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    border-top: 5px solid #a4e053;
+}
+
+.faq-section h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #333;
+    text-align: center;
+}
+
+.faq {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.faq:last-child {
+    border-bottom: none;
+}
+
+.faq-question {
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.faq-question:hover {
+    background-color: #f1f1f1;
+}
+
+.faq-answer {
+    display: none;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    animation: slideDown 0.3s ease-in-out;
+}
+
+.faq-answer p {
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
+iframe {
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.arrow {
+    font-size: 14px;
+    color: #999;
+}
+
+/* Admin Panel Styles */
+#adminContainer {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border-top: 5px solid #a4e053; /* ArmorX Green top border */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    font-family: Arial, sans-serif;
+    position: absolute; /* Fixed position for alignment */
+    top: 20px; /* Distance from the top */
+    right: 5px; /* Bring closer to the calculator */
+    z-index: 1000; /* Ensure it stays on top */
+    width: 320px; /* Increased width by 20px */
+}
+
+/* Admin Panel Heading */
+#adminContainer h3 {
+    text-align: center;
+    color: #333;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+/* Admin Panel Buttons */
+#adminContainer button {
+    display: block; /* Ensures each button occupies its own line */
+    margin: 0 auto 10px auto; /* Centers the button horizontally */
+    padding: 10px 20px; /* Adjust padding for balanced proportions */
+    background-color: #a4e053; /* ArmorX Green button */
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    width: 80%; /* Button width relative to container */
+    text-align: center; /* Centers the text within the button */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#adminContainer button:hover {
+    background-color: #88c440; /* Dark Green on hover */
+    transform: scale(1.05); /* Slight scale effect */
+}
+
+/* Admin Message Area */
+#adminMessageArea {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.6; /* Space between lines for readability */
+    white-space: nowrap; /* Prevent text from wrapping to the next line */
+    overflow-x: auto; /* Enable horizontal scrolling for long lines */
+    overflow-y: auto; /* Retain vertical scrolling for long content */
+    padding: 15px; /* Internal padding for spacing */
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    min-height: 50px; /* Minimum height to ensure visibility */
+    width: 95%; /* Occupy 95% of the container's width */
+    margin: 0 auto; /* Center the message area within the Admin Panel */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for aesthetics */
+}
+/* Share Button Container */
+.share-container {
+    display: flex;
+    justify-content: center; /* Center the button horizontally */
+    margin-bottom: 15px; /* Add space below the button */
+}
+
+/* Share Button Styles */
+#shareButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space between icon and text */
+    background-color: #25D366; /* WhatsApp green color */
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 90%; /* Adjust width relative to the container */
+    max-width: 250px; /* Limit the maximum width */
+}
+
+#shareButton:hover {
+    background-color: #1caa57; /* Darker green on hover */
+    transform: scale(1.05); /* Slight hover effect */
+}
+
+/* Share Icon Styles */
+.share-icon {
+    width: 35px; /* Icon size */
+    height: 35px;
 }
