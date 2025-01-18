@@ -42,8 +42,6 @@ function getColorName(colorCode) {
             return 'Black';
         case 'Grey':
             return 'Grey';
-        case 'Cream':
-            return 'Cream';
         case 'Brown':
             return 'Brown';
         default:
@@ -366,10 +364,9 @@ document.getElementById('numWindows').addEventListener('input', function () {
                     <input type="number" id="width${i}" placeholder="Enter Width in ${selectedUnit}">
                     <label for="color${i}">Select Color:</label>
                     <select id="color${i}">
-                        <option value="BK">Black</option>
-                        <option value="GR">Grey</option>
-                        <option value="CR">Cream</option>
-                        <option value="WH">White</option>
+                        <option value="Black">Black</option>
+                        <option value="Grey">Grey</option>
+                        <option value="Brown">Brown</option>
                     </select>
                 </div>
             `;
