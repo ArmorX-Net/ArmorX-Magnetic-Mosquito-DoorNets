@@ -230,10 +230,10 @@ function formatClosestMatch(i, closestMatch, originalHeight, originalWidth, conv
             
             <!-- Next Steps Section -->
             <p style="margin-top: 20px; font-weight: bold; font-size: 16px;">
-    NEXT STEP:
+    NEED HELP & SUPPORT:
 </p>
 <p style="margin: 0; font-size: 14px; font-weight: normal;">
-    Tap the <img src="https://i.postimg.cc/mk19S9bF/whatsapp.png" alt="WhatsApp Icon" style="width: 18px; height: 18px; vertical-align: middle;"> WhatsApp button below to confirm your door size size with Team ArmorX to <strong>CORRECT MEASUREMENT=PERFECT FIT</strong> for your door frame.
+    Tap the <img src="https://i.postimg.cc/mk19S9bF/whatsapp.png" alt="WhatsApp Icon" style="width: 18px; height: 18px; vertical-align: middle;"> WhatsApp button below to confirm your door size with Team ArmorX to make sure <strong>CLOSEST MATCH</strong> is a perfect fit for your door frame.
 </p>
 <br>
 <p style="font-size: 14px; font-weight: bold; color: #004085;">
