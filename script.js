@@ -40,11 +40,14 @@ function getColorName(colorCode) {
     switch (colorCode) {
         case 'Black':
             return 'Black';
-        case 'GR':
+        case 'GREY':
             return 'Grey';
         case 'Brown':
             return 'Brown';
+        default:
+            return 'Unknown';
     }
+}
 }
 
 // Helper: Find exact match
