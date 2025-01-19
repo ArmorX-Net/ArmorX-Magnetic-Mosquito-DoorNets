@@ -96,7 +96,7 @@ function findExactMatch(height, width, color, unit) {
     // Convert to cm and check for exact match
     const [heightCm, widthCm] = normalizeSizes(height, width, unit);
     const exactMatchCm = sizeData.find(size =>
-        size['Unit'] === 'Cm' &&
+        size['Unit'] === 'cm' &&
         ((size['Height(H)'] === heightCm && size['Width(W)'] === widthCm) ||
             (size['Height(H)'] === widthCm && size['Width(W)'] === heightCm)) &&
         size['Color'].toUpperCase() === color
@@ -111,7 +111,7 @@ function findClosestMatch(height, width, color, unit) {
     let closestMatch = null;
     let smallestDifference = Infinity;
 
-    const filteredData = sizeData.filter(size => size['Unit'] === 'Cm' && size['Color'].toUpperCase() === color);
+    const filteredData = sizeData.filter(size => size['Unit'] === 'cm' && size['Color'].toUpperCase() === color);
 
     filteredData.forEach(size => {
         const diff1 = Math.abs(size['Height(H)'] - heightCm) + Math.abs(size['Width(W)'] - widthCm);
@@ -542,9 +542,9 @@ function formatMessageForWhatsApp() {
 // Share Functionality
 document.getElementById('shareButton').addEventListener('click', function () {
     const shareData = {
-        title: 'ArmorX Window Mosquito Net Calculator',
+        title: 'ArmorX Magnetic Mosquito Door Net Calculator',
         text: "Hey look! Try out this ArmorX calculator to get customize Mosquito Net protection for your home. It's super easy to use! Check it out yourself.",
-        url: 'https://armorx-net.github.io/ArmorX-Mosquito-Net-Calculator/'
+        url: 'https://https://armorx-net.github.io/ArmorX-Magnetic-Mosquito-DoorNets/'
     };
 
     // Check if Web Share API is supported
