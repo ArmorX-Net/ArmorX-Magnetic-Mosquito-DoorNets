@@ -44,8 +44,6 @@ function getColorName(colorCode) {
             return 'Grey';
         case 'Brown':
             return 'Brown';
-        default:
-            return 'Unknown';
     }
 }
 
