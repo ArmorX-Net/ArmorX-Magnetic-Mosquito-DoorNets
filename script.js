@@ -357,7 +357,7 @@ document.getElementById('numWindows').addEventListener('input', function () {
         for (let i = 1; i <= numWindows; i++) {
             windowInputsDiv.innerHTML += `
                 <div class="window-input">
-                    <h3>Window ${i}</h3>
+                    <h3>Door ${i}</h3>
                     <label for="height${i}">Enter Height:</label>
                     <input type="number" id="height${i}" placeholder="Enter Height in ${selectedUnit}">
                     <label for="width${i}">Enter Width:</label>
