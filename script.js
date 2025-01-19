@@ -40,7 +40,7 @@ function getColorName(colorCode) {
     switch (colorCode) {
         case 'Black':
             return 'Black';
-        case 'Grey':
+        case 'GR':
             return 'Grey';
         case 'Brown':
             return 'Brown';
