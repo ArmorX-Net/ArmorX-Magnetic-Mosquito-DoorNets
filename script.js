@@ -48,7 +48,6 @@ function getColorName(colorCode) {
             return 'Unknown';
     }
 }
-}
 
 // Helper: Find exact match
 function findExactMatch(height, width, color, unit) {
