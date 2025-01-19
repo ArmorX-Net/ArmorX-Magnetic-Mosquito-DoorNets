@@ -145,7 +145,7 @@ function formatExactMatch(i, match, originalHeight, originalWidth, unit, color) 
             : `${originalHeight} x ${originalWidth} ${unit}`;
     return `
         <div class="message success">
-            <h3 style="font-weight: bold; color: black;">Window ${i}</h3>
+            <h3 style="font-weight: bold; color: black;">Door ${i}</h3>
             <h4>CONGRATULATIONS! YOUR EXACT SIZE IS AVAILABLE ✅</h4>
             <p>Size Needed (HxW): <strong>${originalSize}</strong></p>
             <p>Size To Order (HxW): <strong>${match['Height(H)']} x ${match['Width(W)']} ${match['Unit']}</strong></p>
@@ -176,7 +176,7 @@ function formatClosestMatch(i, closestMatch, originalHeight, originalWidth, conv
         // If the size exceeds the limit, show a message without an Amazon link
         return `
             <div class="message info">
-                <h3 style="font-weight: bold; color: black;">Window ${i}</h3>
+                <h3 style="font-weight: bold; color: black;">Door ${i}</h3>
                 <h4>CLOSEST MATCH NOT FOUND: FREE Customization Available</h4>
                 <p>Custom Size Needed (HxW): <strong>${originalHeight} x ${originalWidth} ${unit}</strong></p>
                 ${
@@ -199,7 +199,7 @@ function formatClosestMatch(i, closestMatch, originalHeight, originalWidth, conv
 
     return `
         <div class="message info">
-            <h3 style="font-weight: bold; color: black;">Window ${i}</h3>
+            <h3 style="font-weight: bold; color: black;">Door ${i}</h3>
             <h4 style="font-weight: bold;">CLOSEST MATCH FOUND: FREE Customization Available</h4>
             
             <!-- Custom Size Needed Section -->
@@ -251,7 +251,7 @@ function generateWhatsAppLink(orderDetails, isExceeded = false) {
     // Check if the size exceeds the limit and customize the message
     let message;
     if (isExceeded) {
-        message = `Hello Team ARMORX,\n\nMy window size exceeds the standard size limit. I need help with customization. Please assist me with the following details:\n\n${orderDetails.join('\n\n')}\n\nThank you.`;
+        message = `Hello Team ARMORX,\n\nMy Door size exceeds the standard size limit. I need help with customization. Please assist me with the following details:\n\n${orderDetails.join('\n\n')}\n\nThank you.`;
     } else {
         message = `Hello Team ARMORX,\n\nPlease make note of my order:\n\n${orderDetails.join('\n\n')}\n\nThank you.`;
     }
@@ -285,7 +285,7 @@ function calculateSizes() {
         const color = document.getElementById(`color${i}`).value.toUpperCase();
 
         if (!height || !width || height <= 0 || width <= 0) {
-            messageArea.innerHTML += `<p class="error">Invalid dimensions for Window ${i}. Please enter valid values.</p>`;
+            messageArea.innerHTML += `<p class="error">Invalid dimensions for Door ${i}. Please enter valid values.</p>`;
             continue;
         }
 
@@ -297,9 +297,9 @@ function calculateSizes() {
         if (exactMatch) {
             const match = exactMatch.match;
             const note = exactMatch.note || '';
-            orderDetails.push(`Window ${i}: Exact Match Found: No Customization Needed\n- Size: ${match['Size(HxW)']} ${match['Unit']}\n- Color: ${getColorName(color)}\n- Link: ${match['Amazon Link']}\n${note}`);
+            orderDetails.push(`Door ${i}: Exact Match Found: No Customization Needed\n- Size: ${match['Size(HxW)']} ${match['Unit']}\n- Color: ${getColorName(color)}\n- Link: ${match['Amazon Link']}\n${note}`);
             messageArea.innerHTML += formatExactMatch(i, match, height, width, unit, color);
-            continue; // Skip the rest of the logic for this window
+            continue; // Skip the rest of the logic for this Door
         }
 
         // Only check for dimensions exceeding limits during closest match
@@ -311,10 +311,10 @@ function calculateSizes() {
 
         if (exceedsLimit) {
             isExceeded = true; // Set the flag to true
-            orderDetails.push(`Window ${i}: Size exceeds limit.\n- Custom Size: ${height} x ${width} ${unit}\n- Custom Size in Cm: ${roundToNearestHalf(heightCm)} x ${roundToNearestHalf(widthCm)} Cm\n- Color: ${getColorName(color)}`);
+            orderDetails.push(`Door ${i}: Size exceeds limit.\n- Custom Size: ${height} x ${width} ${unit}\n- Custom Size in Cm: ${roundToNearestHalf(heightCm)} x ${roundToNearestHalf(widthCm)} Cm\n- Color: ${getColorName(color)}`);
             messageArea.innerHTML += `
                 <div class="message info">
-                    <h3 style="font-weight: bold; color: black;">Window ${i}</h3>
+                    <h3 style="font-weight: bold; color: black;">Door ${i}</h3>
                     <h4>SIZE LIMIT EXCEEDED: FREE Customization Available</h4>
                     <p>Custom Size Needed (HxW): <strong>${height} x ${width} ${unit}</strong></p>
                     <p>Custom Size Needed in Cm: <strong>${roundToNearestHalf(heightCm)} x ${roundToNearestHalf(widthCm)} Cm</strong></p>
@@ -332,10 +332,10 @@ function calculateSizes() {
         if (closestMatch) {
             const match = closestMatch.match;
             const convertedSize = closestMatch.convertedSize;
-            orderDetails.push(`Window ${i}: Closest Match Found: Customization Needed\n- Custom Size Needed: ${height} x ${width} ${unit}\n- Custom Size in Cm: ${convertedSize}\n- Closest Size Ordered: ${match['Height(H)']} x ${match['Width(W)']} Cm\n- Color: ${getColorName(color)}\n- Link: ${match['Amazon Link']}`);
+            orderDetails.push(`Door ${i}: Closest Match Found: Customization Needed\n- Custom Size Needed: ${height} x ${width} ${unit}\n- Custom Size in Cm: ${convertedSize}\n- Closest Size Ordered: ${match['Height(H)']} x ${match['Width(W)']} Cm\n- Color: ${getColorName(color)}\n- Link: ${match['Amazon Link']}`);
             messageArea.innerHTML += formatClosestMatch(i, match, height, width, convertedSize, unit, color);
         } else {
-            messageArea.innerHTML += `<p class="error">No suitable match found for Window ${i}.</p>`;
+            messageArea.innerHTML += `<p class="error">No suitable match found for Door ${i}.</p>`;
         }
     }
 
@@ -346,7 +346,7 @@ function calculateSizes() {
     generateWhatsAppLink(orderDetails, isExceeded);
 }
 
-// Dynamic input field generation for windows
+// Dynamic input field generation for Doors
 document.getElementById('numWindows').addEventListener('input', function () {
     const numWindows = parseInt(this.value);
     const windowInputsDiv = document.getElementById('windowInputs');
@@ -484,7 +484,7 @@ function formatMessageForWhatsApp() {
         // Generate a simplified message format for the admin panel
         const formattedMessage = calculatedOrderDetails.map((detail) => {
             const lines = detail.split('\n');
-            let windowHeader = lines[0]; // Example: "Window 1:"
+            let windowHeader = lines[0]; // Example: "Door 1:"
             let formattedLines = [];
 
             // Remove unnecessary match type text after the header
