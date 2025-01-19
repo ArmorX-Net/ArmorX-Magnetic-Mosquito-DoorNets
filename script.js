@@ -261,7 +261,7 @@ function generateWhatsAppLink(orderDetails, isExceeded = false) {
     messageArea.innerHTML += `
         <div style="text-align: center; margin-top: 20px;">
             <a href="${whatsappLink}" target="_blank" class="whatsapp-button">
-                <span style="flex-grow: 1; text-align: left;">WHATSAPP YOUR ORDER & CUSTOMIZATION DETAILS TO TEAM ARMORX</span>
+                <span style="flex-grow: 1; text-align: left;">(24/7)-SUPPORT: WHATSAPP YOUR DOOR FRAME SIZE TO TEAM ARMORX</span>
                 <img src="https://i.postimg.cc/mk19S9bF/whatsapp.png" alt="WhatsApp Icon">
             </a>
         </div>
