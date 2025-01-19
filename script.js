@@ -200,7 +200,7 @@ function formatClosestMatch(i, closestMatch, originalHeight, originalWidth, conv
     return `
         <div class="message info">
             <h3 style="font-weight: bold; color: black;">Door ${i}</h3>
-            <h4 style="font-weight: bold;">CLOSEST MATCH FOUND: FREE Customization Available</h4>
+            <h4 style="font-weight: bold;">CLOSEST MATCH FOUND:ORDER Using Below Link</h4>
             
             <!-- Custom Size Needed Section -->
             <p style="margin: 0; font-size: 14px;">Custom Size Needed (HxW):</p>
@@ -237,7 +237,7 @@ function formatClosestMatch(i, closestMatch, originalHeight, originalWidth, conv
 </p>
 <br>
 <p style="font-size: 14px; font-weight: bold; color: #004085;">
-    *CUSTOMIZATION IS ONLY POSSIBLE IF WE RECEIVE YOUR ORDER DETAILS ON
+    *CONFIRM YOUR CLOSEST SIZE WITH TEAM ARMORX ON
     <img src="https://i.postimg.cc/mk19S9bF/whatsapp.png" alt="WhatsApp Icon" style="width: 22px; height: 22px; vertical-align: middle;">*
 </p>
         </div>
