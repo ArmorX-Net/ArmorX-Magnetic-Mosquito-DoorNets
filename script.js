@@ -543,8 +543,8 @@ function formatMessageForWhatsApp() {
 document.getElementById('shareButton').addEventListener('click', function () {
     const shareData = {
         title: 'ArmorX Magnetic Mosquito Door Net Calculator',
-        text: "Hey look! Try out this ArmorX calculator to get customize Mosquito Net protection for your home. It's super easy to use! Check it out yourself.",
-        url: 'https://https://armorx-net.github.io/ArmorX-Magnetic-Mosquito-DoorNets/'
+        text: "Hey look what I found! Try out this amazing ArmorX calculator to get a perfect fit magnetic Mosquito Door Net protection for your home. It's super easy to use! Check it out yourself.",
+        url: 'https://armorx-net.github.io/ArmorX-Magnetic-Mosquito-DoorNets/'
     };
 
     // Check if Web Share API is supported
