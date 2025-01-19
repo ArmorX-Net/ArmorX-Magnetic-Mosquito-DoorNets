@@ -38,11 +38,11 @@ function normalizeSizes(height, width, unit) {
 // Helper: Get full color name
 function getColorName(colorCode) {
     switch (colorCode) {
-        case 'Black':
+        case 'BLACK':
             return 'Black';
         case 'GREY':
             return 'Grey';
-        case 'Brown':
+        case 'BROWN':
             return 'Brown';
         default:
             return 'Unknown';
