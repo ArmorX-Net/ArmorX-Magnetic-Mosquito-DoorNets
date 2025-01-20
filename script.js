@@ -168,8 +168,8 @@ function formatClosestMatch(i, closestMatch, originalHeight, originalWidth, conv
     // Check if the size exceeds maximum allowable limits with interchangeability
     const exceedsLimit =
         !(
-            (convertedWidth <= 150 && convertedHeight <= 250) || // Width ≤ 150, Height ≤ 250
-            (convertedWidth <= 250 && convertedHeight <= 150)    // Width ≤ 250, Height ≤ 150
+            (convertedWidth <= 150 && convertedHeight <= 217) || // Width ≤ 117, Height ≤ 217
+            (convertedWidth <= 250 && convertedHeight <= 117)    // Width ≤ 217, Height ≤ 117
         );
 
     if (exceedsLimit) {
@@ -305,8 +305,8 @@ function calculateSizes() {
         // Only check for dimensions exceeding limits during closest match
         const exceedsLimit =
             !(
-                (widthCm <= 150 && heightCm <= 250) || 
-                (widthCm <= 250 && heightCm <= 150)
+                (widthCm <= 117 && heightCm <= 217) || 
+                (widthCm <= 217 && heightCm <= 117)
             );
 
         if (exceedsLimit) {
