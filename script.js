@@ -105,24 +105,58 @@ function findExactMatch(height, width, color, unit) {
     return exactMatchCm ? { match: exactMatchCm, note: null } : null;
 }
 
-// Helper: Find closest match in cm
+// Helper: Find closest match in cm with adjusted width rule
 function findClosestMatch(height, width, color, unit) {
     const [heightCm, widthCm] = normalizeSizes(height, width, unit);
     let closestMatch = null;
     let smallestDifference = Infinity;
 
-    const filteredData = sizeData.filter(size => size['Unit'] === 'cm' && size['Color'].toUpperCase() === color);
+    // Filter only cm sizes that match the color
+    const filteredData = sizeData.filter(
+        size => size['Unit'] === 'cm' && size['Color'].toUpperCase() === color
+    );
 
     filteredData.forEach(size => {
-        const diff1 = Math.abs(size['Height(H)'] - heightCm) + Math.abs(size['Width(W)'] - widthCm);
-        const diff2 = Math.abs(size['Height(H)'] - widthCm) + Math.abs(size['Width(W)'] - heightCm);
+        const dim1 = size['Height(H)'];
+        const dim2 = size['Width(W)'];
+        // Consider both possible assignments of dimensions
+        const permutations = [
+            [dim1, dim2],
+            [dim2, dim1]
+        ];
 
-        const difference = Math.min(diff1, diff2);
-        if (difference < smallestDifference) {
-            smallestDifference = difference;
-            closestMatch = size;
-        }
+        permutations.forEach(perm => {
+            const candidateHeight = perm[0];
+            const candidateWidth = perm[1];
+
+            // Enforce the width rule:
+            // If the user's width is greater than the candidate's width by more than 1cm,
+            // then skip this permutation (i.e. force a candidate that is at least as big).
+            if (widthCm > candidateWidth && (widthCm - candidateWidth) > 1) {
+                return; // skip to next permutation
+            }
+
+            // Calculate a combined difference (using absolute differences)
+            const diff = Math.abs(candidateHeight - heightCm) + Math.abs(candidateWidth - widthCm);
+            if (diff < smallestDifference) {
+                smallestDifference = diff;
+                closestMatch = size;
+            }
+        });
     });
+
+    // Fallback: if no candidate met the width rule, use the original nearest-match logic.
+    if (!closestMatch) {
+        filteredData.forEach(size => {
+            const diff1 = Math.abs(size['Height(H)'] - heightCm) + Math.abs(size['Width(W)'] - widthCm);
+            const diff2 = Math.abs(size['Height(H)'] - widthCm) + Math.abs(size['Width(W)'] - heightCm);
+            const difference = Math.min(diff1, diff2);
+            if (difference < smallestDifference) {
+                smallestDifference = difference;
+                closestMatch = size;
+            }
+        });
+    }
 
     return closestMatch
         ? {
