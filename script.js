@@ -405,7 +405,7 @@ function calculateSizes() {
             orderDetails.push(`Door ${i}: Closest Match Found: Customization Needed\n- Custom Size Needed: ${height} x ${width} ${unit}\n- Custom Size in Cm: ${convertedSize}\n- Closest Size Ordered: ${match['Height(H)']} x ${match['Width(W)']} Cm\n- Color: ${getColorName(color)}\n- Link: ${match['Amazon Link']}`);
             messageArea.innerHTML += formatClosestMatch(i, match, height, width, convertedSize, unit, color);
         } else {
-            messageArea.innerHTML += `<p class="error">No suitable match found for Door ${i}.</p>`;
+            messageArea.innerHTML += `<p class="error">No suitable match found for Door ${i}. Tap the WhatsApp icon below to share your customization request with Team ArmorX. Thanks!</p>`;
         }
     }
 
