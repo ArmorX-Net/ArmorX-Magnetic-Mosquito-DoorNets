@@ -105,27 +105,29 @@ function findExactMatch(height, width, color, unit) {
     return exactMatchCm ? { match: exactMatchCm, note: null } : null;
 }
 
-// Helper: Find closest match in cm with adjusted width rule and max 4cm difference check
+// Helper: Find closest match in cm with adjusted width rule, max 4cm difference check, 
+// and standardizing user dimensions so order doesn’t matter.
 function findClosestMatch(height, width, color, unit) {
+    // Normalize user dimensions to cm.
     const [heightCm, widthCm] = normalizeSizes(height, width, unit);
-    // Standardize the dimensions: treat the larger as height and the smaller as width
+    // Standardize: treat the larger value as height and the smaller as width.
     const userHeight = Math.max(heightCm, widthCm);
     const userWidth  = Math.min(heightCm, widthCm);
 
-    let bestCandidateOverall = null;     // Best candidate regardless of 4cm rule
+    // Arrays to hold acceptable candidate permutations.
+    let acceptableCandidates = [];
+    let bestCandidateOverall = null;
     let bestOverallDiff = Infinity;
-    let bestCandidateAcceptable = null;    // Candidate with both differences <= 4 cm
-    let bestAcceptableDiff = Infinity;
 
-    // Filter candidates to those in cm and matching the color
+    // Filter candidate sizes from the JSON data (only those in cm matching the color).
     const filteredData = sizeData.filter(
         size => size['Unit'] === 'cm' && size['Color'].toUpperCase() === color
     );
 
+    // Evaluate each candidate in both dimension orders.
     filteredData.forEach(size => {
         const dim1 = size['Height(H)'];
         const dim2 = size['Width(W)'];
-        // Check both possible assignments of dimensions
         const permutations = [
             [dim1, dim2],
             [dim2, dim1]
@@ -133,20 +135,13 @@ function findClosestMatch(height, width, color, unit) {
 
         permutations.forEach(perm => {
             const candidateHeight = perm[0];
-            const candidateWidth = perm[1];
-
-            // Enforce the width rule:
-            // If the user's width is greater than the candidate's width by more than 1cm, skip this permutation.
-            if (userWidth > candidateWidth && (userWidth - candidateWidth) > 1) {
-                return;
-            }
-
-            // Calculate individual differences and total difference
+            const candidateWidth  = perm[1];
+            // Compute differences against the standardized user dimensions.
             const heightDiff = Math.abs(candidateHeight - userHeight);
-            const widthDiff = Math.abs(candidateWidth - userWidth);
+            const widthDiff  = Math.abs(candidateWidth - userWidth);
             const diff = heightDiff + widthDiff;
 
-            // Update the overall best candidate (ignoring the 4cm rule)
+            // Update best overall candidate (ignoring the preferred rule).
             if (diff < bestOverallDiff) {
                 bestOverallDiff = diff;
                 bestCandidateOverall = {
@@ -159,33 +154,51 @@ function findClosestMatch(height, width, color, unit) {
                 };
             }
 
-            // If both differences are within 4 cm, consider it as acceptable.
+            // Only consider candidates acceptable if both differences are within 4 cm.
             if (heightDiff <= 4 && widthDiff <= 4) {
-                if (diff < bestAcceptableDiff) {
-                    bestAcceptableDiff = diff;
-                    bestCandidateAcceptable = {
-                        size: size,
-                        candidateHeight: candidateHeight,
-                        candidateWidth: candidateWidth,
-                        heightDiff: heightDiff,
-                        widthDiff: widthDiff,
-                        diff: diff
-                    };
-                }
+                acceptableCandidates.push({
+                    size: size,
+                    candidateHeight: candidateHeight,
+                    candidateWidth: candidateWidth,
+                    heightDiff: heightDiff,
+                    widthDiff: widthDiff,
+                    diff: diff
+                });
             }
         });
     });
 
-    // If an acceptable candidate is found, return it.
-    if (bestCandidateAcceptable) {
-        return {
-            match: bestCandidateAcceptable.size,
-            convertedSize: `${roundToNearestHalf(userHeight)} x ${roundToNearestHalf(userWidth)} cm`
-        };
+    // If we found at least one acceptable candidate, try to pick one based on the width rule.
+    if (acceptableCandidates.length > 0) {
+        // Preferred candidates: those with candidateWidth >= userWidth OR, if smaller,
+        // the difference is within 1 cm.
+        const preferredCandidates = acceptableCandidates.filter(cand => {
+            if (cand.candidateWidth >= userWidth) return true;
+            if ((userWidth - cand.candidateWidth) <= 1) return true;
+            return false;
+        });
+        // If we have any preferred candidates, choose the one with the smallest overall diff.
+        if (preferredCandidates.length > 0) {
+            const bestPreferred = preferredCandidates.reduce((acc, cur) => 
+                cur.diff < acc.diff ? cur : acc
+            );
+            return {
+                match: bestPreferred.size,
+                convertedSize: `${roundToNearestHalf(userHeight)} x ${roundToNearestHalf(userWidth)} cm`
+            };
+        } else {
+            // Otherwise, return the best acceptable candidate even if its width is more than 1cm below the user width.
+            const bestAcceptable = acceptableCandidates.reduce((acc, cur) =>
+                cur.diff < acc.diff ? cur : acc
+            );
+            return {
+                match: bestAcceptable.size,
+                convertedSize: `${roundToNearestHalf(userHeight)} x ${roundToNearestHalf(userWidth)} cm`
+            };
+        }
     }
 
-    // No acceptable candidate found (i.e. even the best candidate has a >4cm difference)
-    // Returning null will trigger the exceed size logic in calculateSizes().
+    // If no candidate is acceptable (i.e. differences exceed 4cm), return null.
     return null;
 }
 
