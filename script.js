@@ -222,8 +222,8 @@ function formatClosestMatch(i, closestMatch, originalHeight, originalWidth, conv
     // Check if the size exceeds maximum allowable limits with interchangeability
     const exceedsLimit =
         !(
-            (convertedWidth <= 150 && convertedHeight <= 217) || // Width ≤ 117, Height ≤ 217
-            (convertedWidth <= 250 && convertedHeight <= 117)    // Width ≤ 217, Height ≤ 117
+            (convertedWidth <= 117 && convertedHeight <= 217) || // Width ≤ 117, Height ≤ 217
+            (convertedWidth <= 217 && convertedHeight <= 117)    // Width ≤ 217, Height ≤ 117
         );
 
     if (exceedsLimit) {
