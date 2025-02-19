@@ -105,13 +105,16 @@ function findExactMatch(height, width, color, unit) {
     return exactMatchCm ? { match: exactMatchCm, note: null } : null;
 }
 
-// Helper: Find closest match in cm with adjusted width rule
+// Helper: Find closest match in cm with adjusted width rule and max 4cm difference check
 function findClosestMatch(height, width, color, unit) {
     const [heightCm, widthCm] = normalizeSizes(height, width, unit);
-    let closestMatch = null;
-    let smallestDifference = Infinity;
+    
+    let bestCandidateOverall = null;     // Best candidate regardless of 4cm rule
+    let bestOverallDiff = Infinity;
+    let bestCandidateAcceptable = null;    // Candidate with both differences <= 4 cm
+    let bestAcceptableDiff = Infinity;
 
-    // Filter only cm sizes that match the color
+    // Filter candidates to those in cm and matching the color
     const filteredData = sizeData.filter(
         size => size['Unit'] === 'cm' && size['Color'].toUpperCase() === color
     );
@@ -119,7 +122,7 @@ function findClosestMatch(height, width, color, unit) {
     filteredData.forEach(size => {
         const dim1 = size['Height(H)'];
         const dim2 = size['Width(W)'];
-        // Consider both possible assignments of dimensions
+        // Check both possible assignments of dimensions
         const permutations = [
             [dim1, dim2],
             [dim2, dim1]
@@ -130,40 +133,57 @@ function findClosestMatch(height, width, color, unit) {
             const candidateWidth = perm[1];
 
             // Enforce the width rule:
-            // If the user's width is greater than the candidate's width by more than 1cm,
-            // then skip this permutation (i.e. force a candidate that is at least as big).
+            // If the user's width is greater than the candidate's width by more than 1cm, skip this permutation.
             if (widthCm > candidateWidth && (widthCm - candidateWidth) > 1) {
-                return; // skip to next permutation
+                return;
             }
 
-            // Calculate a combined difference (using absolute differences)
-            const diff = Math.abs(candidateHeight - heightCm) + Math.abs(candidateWidth - widthCm);
-            if (diff < smallestDifference) {
-                smallestDifference = diff;
-                closestMatch = size;
+            // Calculate individual differences and total difference
+            const heightDiff = Math.abs(candidateHeight - heightCm);
+            const widthDiff = Math.abs(candidateWidth - widthCm);
+            const diff = heightDiff + widthDiff;
+
+            // Update the overall best candidate (ignoring the 4cm rule)
+            if (diff < bestOverallDiff) {
+                bestOverallDiff = diff;
+                bestCandidateOverall = {
+                    size: size,
+                    candidateHeight: candidateHeight,
+                    candidateWidth: candidateWidth,
+                    heightDiff: heightDiff,
+                    widthDiff: widthDiff,
+                    diff: diff
+                };
+            }
+
+            // If both differences are within 4 cm, consider it as acceptable.
+            if (heightDiff <= 4 && widthDiff <= 4) {
+                if (diff < bestAcceptableDiff) {
+                    bestAcceptableDiff = diff;
+                    bestCandidateAcceptable = {
+                        size: size,
+                        candidateHeight: candidateHeight,
+                        candidateWidth: candidateWidth,
+                        heightDiff: heightDiff,
+                        widthDiff: widthDiff,
+                        diff: diff
+                    };
+                }
             }
         });
     });
 
-    // Fallback: if no candidate met the width rule, use the original nearest-match logic.
-    if (!closestMatch) {
-        filteredData.forEach(size => {
-            const diff1 = Math.abs(size['Height(H)'] - heightCm) + Math.abs(size['Width(W)'] - widthCm);
-            const diff2 = Math.abs(size['Height(H)'] - widthCm) + Math.abs(size['Width(W)'] - heightCm);
-            const difference = Math.min(diff1, diff2);
-            if (difference < smallestDifference) {
-                smallestDifference = difference;
-                closestMatch = size;
-            }
-        });
+    // If an acceptable candidate is found, return it.
+    if (bestCandidateAcceptable) {
+        return {
+            match: bestCandidateAcceptable.size,
+            convertedSize: `${roundToNearestHalf(heightCm)} x ${roundToNearestHalf(widthCm)} cm`
+        };
     }
 
-    return closestMatch
-        ? {
-              match: closestMatch,
-              convertedSize: `${roundToNearestHalf(heightCm)} x ${roundToNearestHalf(widthCm)} cm`,
-          }
-        : null;
+    // No acceptable candidate found (i.e. even the best candidate has a >4cm difference)
+    // Returning null will trigger the exceed size logic in calculateSizes().
+    return null;
 }
 
 // Helper: Round to nearest 0.5
