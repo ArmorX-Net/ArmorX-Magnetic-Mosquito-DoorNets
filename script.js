@@ -108,7 +108,10 @@ function findExactMatch(height, width, color, unit) {
 // Helper: Find closest match in cm with adjusted width rule and max 4cm difference check
 function findClosestMatch(height, width, color, unit) {
     const [heightCm, widthCm] = normalizeSizes(height, width, unit);
-    
+    // Standardize the dimensions: treat the larger as height and the smaller as width
+    const userHeight = Math.max(heightCm, widthCm);
+    const userWidth  = Math.min(heightCm, widthCm);
+
     let bestCandidateOverall = null;     // Best candidate regardless of 4cm rule
     let bestOverallDiff = Infinity;
     let bestCandidateAcceptable = null;    // Candidate with both differences <= 4 cm
@@ -134,13 +137,13 @@ function findClosestMatch(height, width, color, unit) {
 
             // Enforce the width rule:
             // If the user's width is greater than the candidate's width by more than 1cm, skip this permutation.
-            if (widthCm > candidateWidth && (widthCm - candidateWidth) > 1) {
+            if (userWidth > candidateWidth && (userWidth - candidateWidth) > 1) {
                 return;
             }
 
             // Calculate individual differences and total difference
-            const heightDiff = Math.abs(candidateHeight - heightCm);
-            const widthDiff = Math.abs(candidateWidth - widthCm);
+            const heightDiff = Math.abs(candidateHeight - userHeight);
+            const widthDiff = Math.abs(candidateWidth - userWidth);
             const diff = heightDiff + widthDiff;
 
             // Update the overall best candidate (ignoring the 4cm rule)
@@ -177,7 +180,7 @@ function findClosestMatch(height, width, color, unit) {
     if (bestCandidateAcceptable) {
         return {
             match: bestCandidateAcceptable.size,
-            convertedSize: `${roundToNearestHalf(heightCm)} x ${roundToNearestHalf(widthCm)} cm`
+            convertedSize: `${roundToNearestHalf(userHeight)} x ${roundToNearestHalf(userWidth)} cm`
         };
     }
 
