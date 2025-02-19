@@ -398,15 +398,18 @@ function calculateSizes() {
         }
 
         // Find closest match
-        const closestMatch = findClosestMatch(height, width, color, unit);
-        if (closestMatch) {
-            const match = closestMatch.match;
-            const convertedSize = closestMatch.convertedSize;
-            orderDetails.push(`Door ${i}: Closest Match Found: Customization Needed\n- Custom Size Needed: ${height} x ${width} ${unit}\n- Custom Size in Cm: ${convertedSize}\n- Closest Size Ordered: ${match['Height(H)']} x ${match['Width(W)']} Cm\n- Color: ${getColorName(color)}\n- Link: ${match['Amazon Link']}`);
-            messageArea.innerHTML += formatClosestMatch(i, match, height, width, convertedSize, unit, color);
-        } else {
-            messageArea.innerHTML += `<p class="error">No suitable match found for Door ${i}. Tap the WhatsApp icon below to share your customization request with Team ArmorX. Thanks!</p>`;
-        }
+const closestMatch = findClosestMatch(height, width, color, unit);
+if (closestMatch) {
+    const match = closestMatch.match;
+    const convertedSize = closestMatch.convertedSize;
+    orderDetails.push(`Door ${i}: Closest Match Found: Customization Needed\n- Custom Size Needed: ${height} x ${width} ${unit}\n- Custom Size in Cm: ${convertedSize}\n- Closest Size Ordered: ${match['Height(H)']} x ${match['Width(W)']} Cm\n- Color: ${getColorName(color)}\n- Link: ${match['Amazon Link']}`);
+    messageArea.innerHTML += formatClosestMatch(i, match, height, width, convertedSize, unit, color);
+} else {
+    // When no suitable candidate is found, add an order detail entry so that the WhatsApp link will include this door's details.
+    orderDetails.push(`Door ${i}: No suitable match found. Please WhatsApp your door size for a free customization request.`);
+    // Display an error message prompting the user to WhatsApp their size.
+    messageArea.innerHTML += `<p class="error">No suitable match found for Door ${i}. Tap the WhatsApp icon below to share your customization request with Team ArmorX. Thanks!</p>`;
+}
     }
 
     // Store the calculated details for admin access
