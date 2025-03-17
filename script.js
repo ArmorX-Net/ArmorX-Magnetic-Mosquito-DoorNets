@@ -22,6 +22,13 @@ let isAdminVisible = false;
 window.addEventListener('keydown', (event) => {
     if (event.ctrlKey && event.shiftKey && event.code === 'KeyU') {
         toggleAdminInterface();
+        // Inside toggleAdminInterface(), after adding the Format Message button:
+const invoiceButton = document.createElement('button');
+invoiceButton.innerText = 'Generate Invoice';
+invoiceButton.className = 'admin-button';
+invoiceButton.addEventListener('click', generateInvoice);
+adminContainer.appendChild(invoiceButton);
+
     }
 });
 
