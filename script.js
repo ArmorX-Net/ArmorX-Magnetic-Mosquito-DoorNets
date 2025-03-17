@@ -1,5 +1,7 @@
 // Load the size data from the JSON file
 let sizeData;
+
+// Fetch the JSON data and prevent caching issues
 fetch('MQD_Sizes_Unit_Color_and_Links.json?v=' + new Date().getTime())
     .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -22,48 +24,18 @@ let isAdminVisible = false;
 window.addEventListener('keydown', (event) => {
     if (event.ctrlKey && event.shiftKey && event.code === 'KeyU') {
         toggleAdminInterface();
-        // Inside toggleAdminInterface(), after adding the Format Message button:
-const invoiceButton = document.createElement('button');
-invoiceButton.innerText = 'Generate Invoice';
-invoiceButton.className = 'admin-button';
-invoiceButton.addEventListener('click', generateInvoice);
-adminContainer.appendChild(invoiceButton);
-
     }
 });
 
-// ----------------------
-// GLOBAL VARIABLES
-// ----------------------
 
-// Global variables for admin panel messaging and invoice data.
-let calculatedOrderDetails = []; // Populated during your calculation logic.
-let orderData = []; // Each object: { doorNumber: 1, size: "210 x 115 cm" }
-
-// Fixed Door Net Prices.
-const DOOR_NET_PRICES = {
-    "Selling Price": 880,
-    "Deal Price": 826,
-    "Event Price": 799
-};
-
-// Helper to get fixed door net price based on price type.
-function getDoorNetPrice(priceType) {
-    return DOOR_NET_PRICES[priceType] || 880;
-}
-
-// ----------------------
-// HELPER FUNCTIONS
-// ----------------------
-
-// Normalize sizes based on input unit.
+// Helper: Normalize sizes based on input unit
 function normalizeSizes(height, width, unit) {
     if (unit === 'Inch') return [height * 2.54, width * 2.54]; // Inches to cm
     if (unit === 'Feet') return [height * 30.48, width * 30.48]; // Feet to cm
     return [height, width]; // Already in cm
 }
 
-// Get full color name.
+// Helper: Get full color name
 function getColorName(colorCode) {
     switch (colorCode) {
         case 'BLACK':
@@ -77,57 +49,82 @@ function getColorName(colorCode) {
     }
 }
 
-// Find exact match.
+// Helper: Find exact match
 function findExactMatch(height, width, color, unit) {
     let normalizedHeight, normalizedWidth;
+
     if (unit === 'Feet') {
-        normalizedHeight = height;
+        normalizedHeight = height; // Already in feet
         normalizedWidth = width;
+
+        // Check for exact match in Feet
         const exactMatchFeet = sizeData.find(size =>
             size['Unit'] === 'Feet' &&
             ((size['Height(H)'] === normalizedHeight && size['Width(W)'] === normalizedWidth) ||
-             (size['Height(H)'] === normalizedWidth && size['Width(W)'] === normalizedHeight)) &&
+                (size['Height(H)'] === normalizedWidth && size['Width(W)'] === normalizedHeight)) &&
             size['Color'].toUpperCase() === color
         );
+
         if (exactMatchFeet) {
-            return { match: exactMatchFeet, note: null };
+            return {
+                match: exactMatchFeet,
+                note: null,
+            };
         }
     }
+
     if (unit === 'Inch') {
         const heightFeet = height / 12;
         const widthFeet = width / 12;
+
+        // Check for exact match in Feet for Inches input
         const exactMatchFeet = sizeData.find(size =>
             size['Unit'] === 'Feet' &&
             ((size['Height(H)'] === heightFeet && size['Width(W)'] === widthFeet) ||
-             (size['Height(H)'] === widthFeet && size['Width(W)'] === heightFeet)) &&
+                (size['Height(H)'] === widthFeet && size['Width(W)'] === heightFeet)) &&
             size['Color'].toUpperCase() === color
         );
+
         if (exactMatchFeet) {
-            return { match: exactMatchFeet, note: `(Original: ${height} x ${width} Inches, 12 Inches = 1 Foot)` };
+            return {
+                match: exactMatchFeet,
+                note: `(Original: ${height} x ${width} Inches, 12 Inches = 1 Foot)`,
+            };
         }
     }
+
+    // Convert to cm and check for exact match
     const [heightCm, widthCm] = normalizeSizes(height, width, unit);
     const exactMatchCm = sizeData.find(size =>
         size['Unit'] === 'cm' &&
         ((size['Height(H)'] === heightCm && size['Width(W)'] === widthCm) ||
-         (size['Height(H)'] === widthCm && size['Width(W)'] === heightCm)) &&
+            (size['Height(H)'] === widthCm && size['Width(W)'] === heightCm)) &&
         size['Color'].toUpperCase() === color
     );
+
     return exactMatchCm ? { match: exactMatchCm, note: null } : null;
 }
 
-// Find closest match with adjusted width rule and max 4cm difference.
+// Helper: Find closest match in cm with adjusted width rule, max 4cm difference check, 
+// and standardizing user dimensions so order doesn’t matter.
 function findClosestMatch(height, width, color, unit) {
+    // Normalize user dimensions to cm.
     const [heightCm, widthCm] = normalizeSizes(height, width, unit);
+    // Standardize: treat the larger value as height and the smaller as width.
     const userHeight = Math.max(heightCm, widthCm);
     const userWidth  = Math.min(heightCm, widthCm);
 
+    // Arrays to hold acceptable candidate permutations.
     let acceptableCandidates = [];
+    let bestCandidateOverall = null;
     let bestOverallDiff = Infinity;
+
+    // Filter candidate sizes from the JSON data (only those in cm matching the color).
     const filteredData = sizeData.filter(
         size => size['Unit'] === 'cm' && size['Color'].toUpperCase() === color
     );
 
+    // Evaluate each candidate in both dimension orders.
     filteredData.forEach(size => {
         const dim1 = size['Height(H)'];
         const dim2 = size['Width(W)'];
@@ -135,36 +132,54 @@ function findClosestMatch(height, width, color, unit) {
             [dim1, dim2],
             [dim2, dim1]
         ];
+
         permutations.forEach(perm => {
             const candidateHeight = perm[0];
             const candidateWidth  = perm[1];
+            // Compute differences against the standardized user dimensions.
             const heightDiff = Math.abs(candidateHeight - userHeight);
             const widthDiff  = Math.abs(candidateWidth - userWidth);
             const diff = heightDiff + widthDiff;
+
+            // Update best overall candidate (ignoring the preferred rule).
             if (diff < bestOverallDiff) {
                 bestOverallDiff = diff;
+                bestCandidateOverall = {
+                    size: size,
+                    candidateHeight: candidateHeight,
+                    candidateWidth: candidateWidth,
+                    heightDiff: heightDiff,
+                    widthDiff: widthDiff,
+                    diff: diff
+                };
             }
+
+            // Only consider candidates acceptable if both differences are within 4 cm.
             if (heightDiff <= 4 && widthDiff <= 4) {
                 acceptableCandidates.push({
                     size: size,
-                    candidateHeight,
-                    candidateWidth,
-                    heightDiff,
-                    widthDiff,
-                    diff
+                    candidateHeight: candidateHeight,
+                    candidateWidth: candidateWidth,
+                    heightDiff: heightDiff,
+                    widthDiff: widthDiff,
+                    diff: diff
                 });
             }
         });
     });
 
+    // If we found at least one acceptable candidate, try to pick one based on the width rule.
     if (acceptableCandidates.length > 0) {
+        // Preferred candidates: those with candidateWidth >= userWidth OR, if smaller,
+        // the difference is within 1 cm.
         const preferredCandidates = acceptableCandidates.filter(cand => {
             if (cand.candidateWidth >= userWidth) return true;
             if ((userWidth - cand.candidateWidth) <= 1) return true;
             return false;
         });
+        // If we have any preferred candidates, choose the one with the smallest overall diff.
         if (preferredCandidates.length > 0) {
-            const bestPreferred = preferredCandidates.reduce((acc, cur) =>
+            const bestPreferred = preferredCandidates.reduce((acc, cur) => 
                 cur.diff < acc.diff ? cur : acc
             );
             return {
@@ -172,6 +187,7 @@ function findClosestMatch(height, width, color, unit) {
                 convertedSize: `${roundToNearestHalf(userHeight)} x ${roundToNearestHalf(userWidth)} cm`
             };
         } else {
+            // Otherwise, return the best acceptable candidate even if its width is more than 1cm below the user width.
             const bestAcceptable = acceptableCandidates.reduce((acc, cur) =>
                 cur.diff < acc.diff ? cur : acc
             );
@@ -181,15 +197,17 @@ function findClosestMatch(height, width, color, unit) {
             };
         }
     }
+
+    // If no candidate is acceptable (i.e. differences exceed 4cm), return null.
     return null;
 }
 
-// Round to nearest 0.5.
+// Helper: Round to nearest 0.5
 function roundToNearestHalf(value) {
     return Math.round(value * 2) / 2;
 }
 
-// Format exact match result.
+// Helper: Format results for exact match
 function formatExactMatch(i, match, originalHeight, originalWidth, unit, color) {
     const originalSize =
         unit === 'Inch'
@@ -204,29 +222,38 @@ function formatExactMatch(i, match, originalHeight, originalWidth, unit, color) 
             <p>Color: <strong>${getColorName(color)}</strong></p>
             <p>
                 <br>
-                <a href="${match['Amazon Link']}" target="_blank" style="color: green; font-weight: bold;">
-                    CLICK HERE: To Order Directly on Amazon
-                </a>
+          <a href="${match['Amazon Link']}" target="_blank" style="color: green; font-weight: bold;">
+        CLICK HERE: To Order Directly on Amazon
+         </a>
             </p>
         </div>
     `;
 }
 
-// Format closest match result.
+// Helper: Format results for closest match
 function formatClosestMatch(i, closestMatch, originalHeight, originalWidth, convertedSize, unit, color) {
+    // Parse the converted size to extract dimensions in cm
     const [convertedHeight, convertedWidth] = convertedSize.split(' x ').map(parseFloat);
+
+    // Check if the size exceeds maximum allowable limits with interchangeability
     const exceedsLimit =
         !(
-            (convertedWidth <= 117 && convertedHeight <= 217) ||
-            (convertedWidth <= 217 && convertedHeight <= 117)
+            (convertedWidth <= 117 && convertedHeight <= 217) || // Width ≤ 117, Height ≤ 217
+            (convertedWidth <= 217 && convertedHeight <= 117)    // Width ≤ 217, Height ≤ 117
         );
+
     if (exceedsLimit) {
+        // If the size exceeds the limit, show a message without an Amazon link
         return `
             <div class="message info">
                 <h3 style="font-weight: bold; color: black;">Door ${i}</h3>
                 <h4>CLOSEST MATCH NOT FOUND: FREE Customization Available</h4>
                 <p>Custom Size Needed (HxW): <strong>${originalHeight} x ${originalWidth} ${unit}</strong></p>
-                ${ convertedSize ? `<p>Custom Size Needed in Cm: <strong>${convertedHeight} x ${convertedWidth} Cm</strong></p>` : '' }
+                ${
+                    convertedSize
+                        ? `<p>Custom Size Needed in Cm: <strong>${convertedHeight} x ${convertedWidth} Cm</strong></p>`
+                        : ''
+                }
                 <p>Color: <strong>${getColorName(color)}</strong></p>
                 <p style="font-weight: bold; color: red; margin-top: 20px;">
                     This is X-Large size. Tap the WhatsApp icon below to share your customization request with Team ArmorX. Thanks!
@@ -234,49 +261,71 @@ function formatClosestMatch(i, closestMatch, originalHeight, originalWidth, conv
             </div>
         `;
     }
+
+    // Regular closest match recommendation
+    
+   // Determine if converted size is needed (only for feet or inches)
     const showConvertedSize = unit === 'Feet' || unit === 'Inch';
+
     return `
         <div class="message info">
             <h3 style="font-weight: bold; color: black;">Door ${i}</h3>
-            <h4 style="font-weight: bold;">CLOSEST MATCH FOUND: ORDER Using Below Link</h4>
+            <h4 style="font-weight: bold;">CLOSEST MATCH FOUND:ORDER Using Below Link</h4>
+            
+            <!-- Custom Size Needed Section -->
             <p style="margin: 0; font-size: 14px;">Custom Size Needed (HxW):</p>
             <p style="margin: 0; padding-left: 10px; font-size: 14px;">= ${originalHeight} x ${originalWidth} ${unit}</p>
-            ${ showConvertedSize ? `<p style="margin: 0; padding-left: 10px; font-size: 14px;">= ${convertedSize}</p>` : '' }
-            <br>
+            ${
+                showConvertedSize
+                    ? `<p style="margin: 0; padding-left: 10px; font-size: 14px;">= ${convertedSize}</p>`
+                    : ''
+            }
+            <br> <!-- Add a line break for spacing -->
+
+            <!-- Closest Size To Order Section -->
             <p style="margin: 0; font-size: 16px; font-weight: bold;">Closest Size To Order (HxW):</p>
             <p style="margin: 0; padding-left: 10px; font-size: 16px; font-weight: bold;">= ${closestMatch['Height(H)']} x ${closestMatch['Width(W)']} Cm</p>
-            <br>
+            <br> <!-- Add a line break for spacing -->
+
+            <!-- Color Section -->
             <p style="margin: 0; font-size: 14px;">Color: <strong>${getColorName(color)}</strong></p>
+            
+            <!-- Amazon Link -->
             <p>
                 <br>
                 <a href="${closestMatch['Amazon Link']}" target="_blank" style="color: blue; font-weight: bold; font-size: 14px;">
                     CLICK HERE: To Order Closest Size on Amazon
                 </a>
             </p>
+            
+            <!-- Next Steps Section -->
             <p style="margin-top: 20px; font-weight: bold; font-size: 16px;">
-                NEED HELP & SUPPORT:
-            </p>
-            <p style="margin: 0; font-size: 14px; font-weight: normal;">
-                Tap the <img src="https://i.postimg.cc/mk19S9bF/whatsapp.png" alt="WhatsApp Icon" style="width: 18px; height: 18px; vertical-align: middle;"> WhatsApp button below to confirm your door size with Team ArmorX to make sure <strong>CLOSEST MATCH</strong> is a perfect fit for your door frame.
-            </p>
-            <br>
-            <p style="font-size: 14px; font-weight: bold; color: #004085;">
-                *CONFIRM YOUR CLOSEST SIZE WITH TEAM ARMORX ON
-                <img src="https://i.postimg.cc/mk19S9bF/whatsapp.png" alt="WhatsApp Icon" style="width: 22px; height: 22px; vertical-align: middle;">*
-            </p>
+    NEED HELP & SUPPORT:
+</p>
+<p style="margin: 0; font-size: 14px; font-weight: normal;">
+    Tap the <img src="https://i.postimg.cc/mk19S9bF/whatsapp.png" alt="WhatsApp Icon" style="width: 18px; height: 18px; vertical-align: middle;"> WhatsApp button below to confirm your door size with Team ArmorX to make sure <strong>CLOSEST MATCH</strong> is a perfect fit for your door frame.
+</p>
+<br>
+<p style="font-size: 14px; font-weight: bold; color: #004085;">
+    *CONFIRM YOUR CLOSEST SIZE WITH TEAM ARMORX ON
+    <img src="https://i.postimg.cc/mk19S9bF/whatsapp.png" alt="WhatsApp Icon" style="width: 22px; height: 22px; vertical-align: middle;">*
+</p>
         </div>
     `;
 }
 
-// Generate a WhatsApp link with customization details.
+// Generate a WhatsApp link with customization details
 function generateWhatsAppLink(orderDetails, isExceeded = false) {
     if (orderDetails.length === 0) return;
+
+    // Check if the size exceeds the limit and customize the message
     let message;
     if (isExceeded) {
         message = `Hello Team ARMORX,\n\nMy Door size exceeds the standard size limit. Please assist me with the following details:\n\n${orderDetails.join('\n\n')}\n\nThank you.`;
     } else {
         message = `Hello Team ARMORX,\n\nPlease make note of my order:\n\n${orderDetails.join('\n\n')}\n\nThank you.`;
     }
+
     const whatsappLink = `https://wa.me/917304692553?text=${encodeURIComponent(message)}`;
     const messageArea = document.getElementById('messageArea');
     messageArea.innerHTML += `
@@ -289,51 +338,49 @@ function generateWhatsAppLink(orderDetails, isExceeded = false) {
     `;
 }
 
-// ----------------------
-// MAIN CALCULATION LOGIC
-// ----------------------
+// Main calculation logic
 function calculateSizes() {
     const unit = document.getElementById('unit').value;
     const numWindows = parseInt(document.getElementById('numWindows').value);
     const messageArea = document.getElementById('messageArea');
-    let orderDetails = [];
+    let orderDetails = []; // Temporary array for current calculation
 
-    // Clear previous orderData and messages.
-    orderData = [];
-    messageArea.innerHTML = '';
+    let isExceeded = false; // Flag to check if size exceeds the limit
 
-    let isExceeded = false;
+    messageArea.innerHTML = ''; // Clear previous messages
+
     for (let i = 1; i <= numWindows; i++) {
         const height = parseFloat(document.getElementById(`height${i}`).value);
         const width = parseFloat(document.getElementById(`width${i}`).value);
         const color = document.getElementById(`color${i}`).value.toUpperCase();
+
         if (!height || !width || height <= 0 || width <= 0) {
             messageArea.innerHTML += `<p class="error">Invalid dimensions for Door ${i}. Please enter valid values.</p>`;
             continue;
         }
-        const [heightCm, widthCm] = normalizeSizes(height, width, unit);
-        // Populate orderData.
-        orderData.push({
-            doorNumber: i,
-            size: `${height} x ${width} ${unit}`
-        });
 
+        // Normalize the size to cm
+        const [heightCm, widthCm] = normalizeSizes(height, width, unit);
+
+        // Check for exact match first
         const exactMatch = findExactMatch(height, width, color, unit);
         if (exactMatch) {
             const match = exactMatch.match;
             const note = exactMatch.note || '';
             orderDetails.push(`Door ${i}: Exact Match Found: No Customization Needed\n- Size: ${match['Size(HxW)']} ${match['Unit']}\n- Color: ${getColorName(color)}\n- Link: ${match['Amazon Link']}\n${note}`);
             messageArea.innerHTML += formatExactMatch(i, match, height, width, unit, color);
-            continue;
+            continue; // Skip the rest of the logic for this Door
         }
 
+        // Only check for dimensions exceeding limits during closest match
         const exceedsLimit =
             !(
-                (widthCm <= 117 && heightCm <= 217) ||
+                (widthCm <= 117 && heightCm <= 217) || 
                 (widthCm <= 217 && heightCm <= 117)
             );
+
         if (exceedsLimit) {
-            isExceeded = true;
+            isExceeded = true; // Set the flag to true
             orderDetails.push(`Door ${i}: Size exceeds limit.\n- Custom Size: ${height} x ${width} ${unit}\n- Custom Size in Cm: ${roundToNearestHalf(heightCm)} x ${roundToNearestHalf(widthCm)} Cm\n- Color: ${getColorName(color)}`);
             messageArea.innerHTML += `
                 <div class="message info">
@@ -347,42 +394,47 @@ function calculateSizes() {
                     </p>
                 </div>
             `;
-            continue;
+            continue; // Skip finding closest match
         }
 
-        const closestMatch = findClosestMatch(height, width, color, unit);
-        if (closestMatch) {
-            const match = closestMatch.match;
-            const convertedSize = closestMatch.convertedSize;
-            orderDetails.push(`Door ${i}: Closest Match Found: Customization Needed
+// Find closest match
+const closestMatch = findClosestMatch(height, width, color, unit);
+if (closestMatch) {
+    const match = closestMatch.match;
+    const convertedSize = closestMatch.convertedSize;
+    orderDetails.push(`Door ${i}: Closest Match Found: Customization Needed
 - Custom Size Needed: ${height} x ${width} ${unit}
 - Custom Size in Cm: ${convertedSize}
 - Closest Size Ordered: ${match['Height(H)']} x ${match['Width(W)']} Cm
 - Color: ${getColorName(color)}
 - Link: ${match['Amazon Link']}`);
-            messageArea.innerHTML += formatClosestMatch(i, match, height, width, convertedSize, unit, color);
-        } else {
-            orderDetails.push(`Door ${i}: No suitable match found.
+    messageArea.innerHTML += formatClosestMatch(i, match, height, width, convertedSize, unit, color);
+} else {
+    // When no candidate is acceptable, include the entered size details.
+    orderDetails.push(`Door ${i}: No suitable match found.
 Size needed: ${height} x ${width} ${unit}. 
 Please WhatsApp your door size for a free customization request.`);
-            messageArea.innerHTML += `<p class="error">
+    messageArea.innerHTML += `<p class="error">
 No suitable match found for Door ${i}.<br>
 Size needed: ${height} x ${width} ${unit}.<br>
 Tap the WhatsApp icon below to share your customization request with Team ArmorX. Thanks!
 </p>`;
-        }
+}
     }
+
+    // Store the calculated details for admin access
     calculatedOrderDetails = orderDetails;
+
+    // Pass the `isExceeded` flag to the WhatsApp link generator
     generateWhatsAppLink(orderDetails, isExceeded);
 }
 
-// ----------------------
-// DYNAMIC INPUT FIELD GENERATION & PLACEHOLDER UPDATES
-// ----------------------
+// Dynamic input field generation for Doors
 document.getElementById('numWindows').addEventListener('input', function () {
     const numWindows = parseInt(this.value);
     const windowInputsDiv = document.getElementById('windowInputs');
     const selectedUnit = document.getElementById('unit').value;
+
     windowInputsDiv.innerHTML = '';
     if (!isNaN(numWindows) && numWindows > 0) {
         for (let i = 1; i <= numWindows; i++) {
@@ -408,6 +460,7 @@ document.getElementById('numWindows').addEventListener('input', function () {
     }
 });
 
+// Dynamic placeholder updates when the unit changes
 document.getElementById('unit').addEventListener('change', function () {
     const selectedUnit = this.value;
     const numWindows = parseInt(document.getElementById('numWindows').value);
@@ -419,21 +472,25 @@ document.getElementById('unit').addEventListener('change', function () {
     }
 });
 
-// ----------------------
-// FAQ TOGGLE LOGIC
-// ----------------------
+// FAQ Toggle Logic
 function toggleFaq(faqElement) {
     const answer = faqElement.nextElementSibling;
     const isExpanded = answer.style.display === "block";
+
+    // Collapse all other FAQs
     document.querySelectorAll(".faq-answer").forEach((faq) => {
         faq.style.display = "none";
     });
     document.querySelectorAll(".arrow").forEach((arrow) => {
         arrow.textContent = "▼";
     });
+
+    // Expand the selected FAQ if it wasn't already expanded
     if (!isExpanded) {
         answer.style.display = "block";
         faqElement.querySelector(".arrow").textContent = "▲";
+
+        // Lazy load the video if it's not already loaded
         const iframe = answer.querySelector("iframe");
         if (iframe && !iframe.src) {
             iframe.src = iframe.getAttribute("data-src");
@@ -441,21 +498,148 @@ function toggleFaq(faqElement) {
     }
 }
 
-// ----------------------
-// SHARE FUNCTIONALITY
-// ----------------------
+// Admin Panel
+function toggleAdminInterface() {
+    isAdminVisible = !isAdminVisible;
+
+    let adminContainer = document.getElementById('adminContainer');
+    if (!adminContainer) {
+        // Create Admin Container if not exists
+        adminContainer = document.createElement('div');
+        adminContainer.id = 'adminContainer';
+        adminContainer.className = 'admin-panel'; // Use CSS class for styling
+
+        // Add a title
+        const adminTitle = document.createElement('h3');
+        adminTitle.innerText = 'Admin Panel';
+        adminTitle.style.textAlign = 'center';
+        adminTitle.style.color = '#333';
+        adminContainer.appendChild(adminTitle);
+
+        // Add Copy Button
+        const copyButton = document.createElement('button');
+        copyButton.innerText = 'Copy Text';
+        copyButton.className = 'admin-button'; // Use CSS class for buttons
+        copyButton.addEventListener('click', copyAdminText);
+        adminContainer.appendChild(copyButton);
+
+        // Add Format Message for WhatsApp Button
+        const formatButton = document.createElement('button');
+        formatButton.innerText = 'Format Message for WhatsApp';
+        formatButton.className = 'admin-button'; // Use CSS class for buttons
+        formatButton.addEventListener('click', formatMessageForWhatsApp);
+        adminContainer.appendChild(formatButton);
+
+        // Add Message Display Area
+        const adminMessageArea = document.createElement('div');
+        adminMessageArea.id = 'adminMessageArea';
+        adminMessageArea.className = 'admin-message-area'; // Use CSS class for message area
+        adminContainer.appendChild(adminMessageArea);
+
+        document.body.appendChild(adminContainer);
+    }
+
+    adminContainer.style.display = isAdminVisible ? 'block' : 'none';
+}
+
+// Function to Copy text from Admin Panel
+function copyAdminText() {
+    const adminMessageArea = document.getElementById('adminMessageArea');
+    if (adminMessageArea) {
+        const textToCopy = adminMessageArea.innerText;
+        navigator.clipboard.writeText(textToCopy)
+            .then(() => alert('Text copied to clipboard!'))
+            .catch((err) => {
+                console.error('Error copying text: ', err);
+                alert('Failed to copy text. Please try again.');
+            });
+    }
+}
+
+// Function to Format Message for WhatsApp Admin Panel
+function formatMessageForWhatsApp() {
+    const adminMessageArea = document.getElementById('adminMessageArea');
+
+    // Use the dynamically calculated orderDetails
+    if (calculatedOrderDetails.length === 0) {
+        adminMessageArea.innerText = 'No calculated order details available. Please run the calculator first.';
+    } else {
+        // Generate a simplified message format for the admin panel
+        const formattedMessage = calculatedOrderDetails.map((detail) => {
+            const lines = detail.split('\n');
+            let windowHeader = lines[0]; // Example: "Door 1:"
+            let formattedLines = [];
+
+            // Remove unnecessary match type text after the header
+            if (windowHeader.includes('Closest Match Found') || windowHeader.includes('Exact Match Found')) {
+                windowHeader = windowHeader.split(':')[0] + ':'; // Retain only "Window X:"
+            }
+
+            // Process the remaining lines for closest or exact matches
+            if (lines.some(line => line.includes('Closest Match Found'))) {
+                const customSizeDetail = lines.find(line => line.startsWith('- Custom Size Needed'));
+                const customSizeInCm = lines.find(line => line.startsWith('- Custom Size in Cm'));
+                const closestSizeDetail = lines.find(line => line.startsWith('- Closest Size Ordered'));
+                const colorDetail = lines.find(line => line.startsWith('- Color'));
+                const linkDetail = lines.find(line => line.startsWith('- Link'));
+
+    // Replace "Closest Size Ordered" with "Closest Size to Order"
+    let updatedClosestSizeDetail = null;
+    if (closestSizeDetail) {
+        updatedClosestSizeDetail = closestSizeDetail.replace('Closest Size Ordered', 'Closest Size to Order');
+    }
+
+    formattedLines = [
+        windowHeader,
+        customSizeDetail,
+        customSizeInCm,
+        updatedClosestSizeDetail, // Use the updated line
+        colorDetail,
+        'CLICK HERE: To Order *Closest Size* on Amazon:',
+        linkDetail
+    ];
+            } else if (lines.some(line => line.includes('Exact Match Found'))) {
+                const sizeDetail = lines.find(line => line.startsWith('- Size:') || line.startsWith('- Size To Order'));
+                const colorDetail = lines.find(line => line.startsWith('- Color'));
+                const linkDetail = lines.find(line => line.startsWith('- Link'));
+                const originalUnitNote = lines.find(line => line.includes('(Original:')); // Find the original unit note
+
+                formattedLines = [
+                    windowHeader,
+                    originalUnitNote, // Include the original unit note, if available
+                    sizeDetail,
+                    colorDetail,
+                    'CLICK HERE: To Order *Exact Size* on Amazon:',
+                    linkDetail
+                ];
+            }
+
+            return formattedLines.filter(Boolean).join('\n'); // Remove undefined or null values
+        }).join('\n\n');
+
+        // Display the formatted message in the admin area
+        adminMessageArea.innerText = formattedMessage;
+    }
+}
+
+// Share Functionality
 document.getElementById('shareButton').addEventListener('click', function () {
     const shareData = {
         title: 'ArmorX Magnetic Mosquito Door Net Calculator',
         text: "Hey look what I found! Try out this amazing ArmorX calculator to get a perfect fit magnetic Mosquito Door Net protection for your home. It's super easy to use! Check it out yourself.",
         url: 'https://armorx-net.github.io/ArmorX-Mosquito-Nets/'
     };
+
+    // Check if Web Share API is supported
     if (navigator.share) {
-        navigator.share(shareData)
+        navigator
+            .share(shareData)
             .then(() => console.log('Shared successfully'))
             .catch((err) => console.error('Error sharing:', err));
     } else {
-        navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`)
+        // Fallback: Copy to clipboard for unsupported browsers
+        navigator.clipboard
+            .writeText(`${shareData.text} ${shareData.url}`)
             .then(() => alert('Link copied to clipboard! Share it manually.'))
             .catch((err) => console.error('Error copying link:', err));
     }
