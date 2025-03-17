@@ -345,9 +345,11 @@ function calculateSizes() {
     const messageArea = document.getElementById('messageArea');
     let orderDetails = []; // Temporary array for current calculation
 
-    let isExceeded = false; // Flag to check if size exceeds the limit
+    // Clear any previous orderData and messages.
+    orderData = [];
+    messageArea.innerHTML = '';
 
-    messageArea.innerHTML = ''; // Clear previous messages
+    let isExceeded = false; // Flag to check if size exceeds the limit
 
     for (let i = 1; i <= numWindows; i++) {
         const height = parseFloat(document.getElementById(`height${i}`).value);
@@ -359,20 +361,26 @@ function calculateSizes() {
             continue;
         }
 
-        // Normalize the size to cm
+        // Normalize the size to cm.
         const [heightCm, widthCm] = normalizeSizes(height, width, unit);
 
-        // Check for exact match first
+        // Populate the global orderData with structured door data.
+        orderData.push({
+            doorNumber: i,
+            size: `${height} x ${width} ${unit}`
+        });
+
+        // Check for exact match first.
         const exactMatch = findExactMatch(height, width, color, unit);
         if (exactMatch) {
             const match = exactMatch.match;
             const note = exactMatch.note || '';
             orderDetails.push(`Door ${i}: Exact Match Found: No Customization Needed\n- Size: ${match['Size(HxW)']} ${match['Unit']}\n- Color: ${getColorName(color)}\n- Link: ${match['Amazon Link']}\n${note}`);
             messageArea.innerHTML += formatExactMatch(i, match, height, width, unit, color);
-            continue; // Skip the rest of the logic for this Door
+            continue;
         }
 
-        // Only check for dimensions exceeding limits during closest match
+        // Check if dimensions exceed limits.
         const exceedsLimit =
             !(
                 (widthCm <= 117 && heightCm <= 217) || 
@@ -380,7 +388,7 @@ function calculateSizes() {
             );
 
         if (exceedsLimit) {
-            isExceeded = true; // Set the flag to true
+            isExceeded = true;
             orderDetails.push(`Door ${i}: Size exceeds limit.\n- Custom Size: ${height} x ${width} ${unit}\n- Custom Size in Cm: ${roundToNearestHalf(heightCm)} x ${roundToNearestHalf(widthCm)} Cm\n- Color: ${getColorName(color)}`);
             messageArea.innerHTML += `
                 <div class="message info">
@@ -394,38 +402,38 @@ function calculateSizes() {
                     </p>
                 </div>
             `;
-            continue; // Skip finding closest match
+            continue;
         }
 
-// Find closest match
-const closestMatch = findClosestMatch(height, width, color, unit);
-if (closestMatch) {
-    const match = closestMatch.match;
-    const convertedSize = closestMatch.convertedSize;
-    orderDetails.push(`Door ${i}: Closest Match Found: Customization Needed
+        // Find closest match.
+        const closestMatch = findClosestMatch(height, width, color, unit);
+        if (closestMatch) {
+            const match = closestMatch.match;
+            const convertedSize = closestMatch.convertedSize;
+            orderDetails.push(`Door ${i}: Closest Match Found: Customization Needed
 - Custom Size Needed: ${height} x ${width} ${unit}
 - Custom Size in Cm: ${convertedSize}
 - Closest Size Ordered: ${match['Height(H)']} x ${match['Width(W)']} Cm
 - Color: ${getColorName(color)}
 - Link: ${match['Amazon Link']}`);
-    messageArea.innerHTML += formatClosestMatch(i, match, height, width, convertedSize, unit, color);
-} else {
-    // When no candidate is acceptable, include the entered size details.
-    orderDetails.push(`Door ${i}: No suitable match found.
+            messageArea.innerHTML += formatClosestMatch(i, match, height, width, convertedSize, unit, color);
+        } else {
+            // When no suitable candidate is found.
+            orderDetails.push(`Door ${i}: No suitable match found.
 Size needed: ${height} x ${width} ${unit}. 
 Please WhatsApp your door size for a free customization request.`);
-    messageArea.innerHTML += `<p class="error">
+            messageArea.innerHTML += `<p class="error">
 No suitable match found for Door ${i}.<br>
 Size needed: ${height} x ${width} ${unit}.<br>
 Tap the WhatsApp icon below to share your customization request with Team ArmorX. Thanks!
 </p>`;
-}
+        }
     }
 
-    // Store the calculated details for admin access
+    // Store the calculated details for admin access.
     calculatedOrderDetails = orderDetails;
 
-    // Pass the `isExceeded` flag to the WhatsApp link generator
+    // Generate the WhatsApp link.
     generateWhatsAppLink(orderDetails, isExceeded);
 }
 
@@ -498,7 +506,31 @@ function toggleFaq(faqElement) {
     }
 }
 
-// Admin Panel
+// ----------------------
+// GLOBAL VARIABLES
+// ----------------------
+
+// Global variables for admin panel messaging and invoice data.
+let calculatedOrderDetails = []; // Populated during your calculation logic.
+let orderData = []; // Each object should be like: { doorNumber: 1, size: "210 x 115 cm" }
+
+// Fixed Door Net Prices.
+const DOOR_NET_PRICES = {
+    "Selling Price": 880,
+    "Deal Price": 826,
+    "Event Price": 799
+};
+
+// Helper to get fixed door net price based on price type.
+function getDoorNetPrice(priceType) {
+    return DOOR_NET_PRICES[priceType] || 880;
+}
+
+// ----------------------
+// ADMIN PANEL FUNCTIONS
+// ----------------------
+
+// Toggle the Admin Panel display.
 function toggleAdminInterface() {
     isAdminVisible = !isAdminVisible;
 
@@ -519,21 +551,22 @@ function toggleAdminInterface() {
         // Add Copy Button
         const copyButton = document.createElement('button');
         copyButton.innerText = 'Copy Text';
-        copyButton.className = 'admin-button'; // Use CSS class for buttons
+        copyButton.className = 'admin-button';
         copyButton.addEventListener('click', copyAdminText);
         adminContainer.appendChild(copyButton);
 
         // Add Format Message for WhatsApp Button
         const formatButton = document.createElement('button');
         formatButton.innerText = 'Format Message for WhatsApp';
-        formatButton.className = 'admin-button'; // Use CSS class for buttons
+        formatButton.className = 'admin-button';
         formatButton.addEventListener('click', formatMessageForWhatsApp);
         adminContainer.appendChild(formatButton);
 
+        // (Invoice controls will be generated below the admin message area)
         // Add Message Display Area
         const adminMessageArea = document.createElement('div');
         adminMessageArea.id = 'adminMessageArea';
-        adminMessageArea.className = 'admin-message-area'; // Use CSS class for message area
+        adminMessageArea.className = 'admin-message-area';
         adminContainer.appendChild(adminMessageArea);
 
         document.body.appendChild(adminContainer);
@@ -542,7 +575,7 @@ function toggleAdminInterface() {
     adminContainer.style.display = isAdminVisible ? 'block' : 'none';
 }
 
-// Function to Copy text from Admin Panel
+// Function to copy text from Admin Panel.
 function copyAdminText() {
     const adminMessageArea = document.getElementById('adminMessageArea');
     if (adminMessageArea) {
@@ -556,26 +589,25 @@ function copyAdminText() {
     }
 }
 
-// Function to Format Message for WhatsApp Admin Panel
+// Function to format the message for WhatsApp in the Admin Panel.
 function formatMessageForWhatsApp() {
     const adminMessageArea = document.getElementById('adminMessageArea');
 
-    // Use the dynamically calculated orderDetails
     if (calculatedOrderDetails.length === 0) {
         adminMessageArea.innerText = 'No calculated order details available. Please run the calculator first.';
     } else {
-        // Generate a simplified message format for the admin panel
+        // Generate a simplified message format.
         const formattedMessage = calculatedOrderDetails.map((detail) => {
             const lines = detail.split('\n');
-            let windowHeader = lines[0]; // Example: "Door 1:"
+            let doorHeader = lines[0]; // Example: "Door 1:"
             let formattedLines = [];
 
-            // Remove unnecessary match type text after the header
-            if (windowHeader.includes('Closest Match Found') || windowHeader.includes('Exact Match Found')) {
-                windowHeader = windowHeader.split(':')[0] + ':'; // Retain only "Window X:"
+            // Remove extra details from the header.
+            if (doorHeader.includes('Closest Match Found') || doorHeader.includes('Exact Match Found')) {
+                doorHeader = doorHeader.split(':')[0] + ':';
             }
 
-            // Process the remaining lines for closest or exact matches
+            // Process details.
             if (lines.some(line => line.includes('Closest Match Found'))) {
                 const customSizeDetail = lines.find(line => line.startsWith('- Custom Size Needed'));
                 const customSizeInCm = lines.find(line => line.startsWith('- Custom Size in Cm'));
@@ -583,30 +615,29 @@ function formatMessageForWhatsApp() {
                 const colorDetail = lines.find(line => line.startsWith('- Color'));
                 const linkDetail = lines.find(line => line.startsWith('- Link'));
 
-    // Replace "Closest Size Ordered" with "Closest Size to Order"
-    let updatedClosestSizeDetail = null;
-    if (closestSizeDetail) {
-        updatedClosestSizeDetail = closestSizeDetail.replace('Closest Size Ordered', 'Closest Size to Order');
-    }
+                let updatedClosestSizeDetail = null;
+                if (closestSizeDetail) {
+                    updatedClosestSizeDetail = closestSizeDetail.replace('Closest Size Ordered', 'Closest Size to Order');
+                }
 
-    formattedLines = [
-        windowHeader,
-        customSizeDetail,
-        customSizeInCm,
-        updatedClosestSizeDetail, // Use the updated line
-        colorDetail,
-        'CLICK HERE: To Order *Closest Size* on Amazon:',
-        linkDetail
-    ];
+                formattedLines = [
+                    doorHeader,
+                    customSizeDetail,
+                    customSizeInCm,
+                    updatedClosestSizeDetail,
+                    colorDetail,
+                    'CLICK HERE: To Order *Closest Size* on Amazon:',
+                    linkDetail
+                ];
             } else if (lines.some(line => line.includes('Exact Match Found'))) {
                 const sizeDetail = lines.find(line => line.startsWith('- Size:') || line.startsWith('- Size To Order'));
                 const colorDetail = lines.find(line => line.startsWith('- Color'));
                 const linkDetail = lines.find(line => line.startsWith('- Link'));
-                const originalUnitNote = lines.find(line => line.includes('(Original:')); // Find the original unit note
+                const originalUnitNote = lines.find(line => line.includes('(Original:'));
 
                 formattedLines = [
-                    windowHeader,
-                    originalUnitNote, // Include the original unit note, if available
+                    doorHeader,
+                    originalUnitNote,
                     sizeDetail,
                     colorDetail,
                     'CLICK HERE: To Order *Exact Size* on Amazon:',
@@ -614,12 +645,124 @@ function formatMessageForWhatsApp() {
                 ];
             }
 
-            return formattedLines.filter(Boolean).join('\n'); // Remove undefined or null values
+            return formattedLines.filter(Boolean).join('\n');
         }).join('\n\n');
 
-        // Display the formatted message in the admin area
         adminMessageArea.innerText = formattedMessage;
     }
+}
+
+// ----------------------
+// INVOICE FUNCTIONS FOR DOOR NETS
+// ----------------------
+
+// Function to create or update the invoice controls panel.
+function generateInvoice() {
+    if (!orderData || orderData.length === 0) {
+        alert("No order details found. Please run the calculator first.");
+        return;
+    }
+
+    const adminMessageArea = document.getElementById('adminMessageArea');
+    if (!adminMessageArea) return;
+
+    // Check if an invoice controls container already exists.
+    let invoiceContainer = document.getElementById('invoiceControls');
+    if (!invoiceContainer) {
+        invoiceContainer = document.createElement('div');
+        invoiceContainer.id = 'invoiceControls';
+        invoiceContainer.style.display = 'flex';
+        invoiceContainer.style.flexDirection = 'column';
+        invoiceContainer.style.gap = '10px';
+        invoiceContainer.style.marginBottom = '20px';
+        adminMessageArea.appendChild(invoiceContainer);
+    } else {
+        // Clear existing controls to rebuild them.
+        invoiceContainer.innerHTML = '';
+    }
+
+    // Create Price Type Dropdown.
+    const priceSelection = document.createElement('select');
+    priceSelection.id = 'priceSelection';
+    priceSelection.innerHTML = ` 
+        <option value="Selling Price">Selling Price</option>
+        <option value="Deal Price">Deal Price</option>
+        <option value="Event Price">Event Price</option>
+    `;
+    invoiceContainer.appendChild(priceSelection);
+
+    // Create Discount Input Field.
+    const discountInput = document.createElement('input');
+    discountInput.type = 'number';
+    discountInput.id = 'discountInput';
+    discountInput.placeholder = 'Enter Discount %';
+    discountInput.min = '0';
+    discountInput.max = '100';
+    invoiceContainer.appendChild(discountInput);
+
+    // Create a container for the Quantity fields (one per door).
+    let qtyContainer = document.createElement('div');
+    qtyContainer.id = 'qtyContainer';
+    qtyContainer.style.display = 'flex';
+    qtyContainer.style.flexDirection = 'column';
+    qtyContainer.style.gap = '5px';
+    qtyContainer.style.marginBottom = '10px';
+
+    orderData.forEach((item) => {
+        let qtyDiv = document.createElement('div');
+        qtyDiv.innerHTML = `Door ${item.doorNumber} Quantity: <input type="number" id="qty${item.doorNumber}" value="1" min="1" style="width:50px;">`;
+        qtyContainer.appendChild(qtyDiv);
+    });
+    invoiceContainer.appendChild(qtyContainer);
+
+    // Create Generate Invoice Button.
+    const generateBtn = document.createElement('button');
+    generateBtn.className = 'admin-button';
+    generateBtn.innerText = 'Generate Invoice';
+    generateBtn.addEventListener('click', () => {
+        // Remove any previous invoice display.
+        const existingInvoice = document.getElementById('invoiceDisplay');
+        if (existingInvoice) {
+            existingInvoice.remove();
+        }
+        // Generate and display the invoice using current selections.
+        displayInvoice(priceSelection.value, discountInput.value);
+    });
+    invoiceContainer.appendChild(generateBtn);
+}
+
+// Function to calculate and display the invoice.
+function displayInvoice(priceType, discountPercent) {
+    let invoiceData = [];
+    let totalAmount = 0;
+
+    orderData.forEach(item => {
+        let qtyInput = document.getElementById(`qty${item.doorNumber}`);
+        let qty = qtyInput ? parseInt(qtyInput.value) : 1;
+        const price = getDoorNetPrice(priceType);
+        const doorTotal = price * qty;
+        totalAmount += doorTotal;
+        invoiceData.push(
+            `Door ${item.doorNumber}\nSize: ${item.size}\nQuantity: ${qty}\nPrice: INR ${Math.round(price)}/- x ${qty} = INR ${Math.round(doorTotal)}/-`
+        );
+    });
+
+    const discountAmount = (totalAmount * parseFloat(discountPercent || 0)) / 100;
+    const finalAmount = totalAmount - discountAmount;
+
+    let invoiceMessage = `<b>Invoice:</b>\n${invoiceData.join('\n\n')}\n\n<b>Total:</b> INR ${Math.round(totalAmount)}/-`;
+    if (discountAmount > 0) {
+        invoiceMessage += `\n<b>Discount (${discountPercent}%):</b> - INR ${Math.round(discountAmount)}/-`;
+    }
+    invoiceMessage += `\n<b>Final Total:</b> INR ${Math.round(finalAmount)}/-`;
+
+    const invoiceDisplay = document.createElement('div');
+    invoiceDisplay.id = 'invoiceDisplay';
+    invoiceDisplay.style.marginTop = '20px';
+    invoiceDisplay.innerHTML = `<pre>${invoiceMessage}</pre>`;
+
+    const adminMessageArea = document.getElementById('adminMessageArea');
+    adminMessageArea.appendChild(invoiceDisplay);
 }
 
 // Share Functionality
