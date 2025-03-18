@@ -472,7 +472,7 @@ function toggleAdminInterface() {
         adminContainer.appendChild(formatButton);
         // Add the Generate Invoice button for Door Net orders
         const invoiceButton = document.createElement('button');
-        invoiceButton.innerText = 'Generate Door Net Invoice';
+        invoiceButton.innerText = 'Create Invoice';
         invoiceButton.className = 'admin-button';
         invoiceButton.addEventListener('click', generateInvoiceDoorNet);
         adminContainer.appendChild(invoiceButton);
