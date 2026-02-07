@@ -427,31 +427,68 @@ function generateInvoiceDoorNet() {
 function displayInvoiceDoorNet(priceType, discountPercent) {
   let invoiceData = [];
   let totalAmount = 0;
+
   doorOrderData.forEach(item => {
     let qtyInput = document.getElementById(`qty${item.doorNumber}`);
     let qty = qtyInput ? parseInt(qtyInput.value) : 1;
+
     const price = parseFloat(item.priceRecord[priceType]);
     const doorTotal = price * qty;
     totalAmount += doorTotal;
+
+    // 🔹 Proper size formatting (215 Cm x 90 Cm)
+    let formattedSize = item.size;
+    if (item.size.includes('x')) {
+        const parts = item.size.replace('Cm', '').trim().split('x');
+        if (parts.length === 2) {
+            const height = parts[0].trim();
+            const width = parts[1].trim();
+            formattedSize = `${height} Cm x ${width} Cm`;
+        }
+    }
+
     invoiceData.push(
-      `Door ${item.doorNumber}\nSize: ${item.size} - ${qty} qty\nPrice: INR ${Math.round(price)}/- x ${qty} = INR ${Math.round(doorTotal)}/-`
+      `Door ${item.doorNumber}
+Size: ${formattedSize} - ${qty} qty
+Price: INR ${Math.round(price)}/- x ${qty} = INR ${Math.round(doorTotal)}/-`
     );
   });
+
   const discountAmount = (totalAmount * parseFloat(discountPercent || 0)) / 100;
   const finalAmount = totalAmount - discountAmount;
-  let invoiceMessage = `<b>Invoice:</b>\n${invoiceData.join('\n\n')}\n\n<b>Total:</b> INR ${Math.round(totalAmount)}/-`;
+
+  let invoiceMessage = `Invoice:\n${invoiceData.join('\n\n')}\n\nTotal: INR ${Math.round(totalAmount)}/-`;
+
   if (discountAmount > 0) {
-    invoiceMessage += `\n<b>Discount (${discountPercent}%):</b> - INR ${Math.round(discountAmount)}/-`;
+    invoiceMessage += `\nDiscount (${discountPercent}%): - INR ${Math.round(discountAmount)}/-`;
   }
-  invoiceMessage += `\n<b>Final Total:</b> INR ${Math.round(finalAmount)}/-`;
+
+  invoiceMessage += `\nFinal Total: INR ${Math.round(finalAmount)}/-\n\n`;
+
+  // 🔹 Static REP CODE Addition
+  invoiceMessage += `
+REP CODE:  
+Free express delivery in *48-72 working hours.*
+
+To confirm the above order please share:
+
+🔹*Name, Address, Pincode, Phone Number and Email ID*
+🔹*Preferred Color:* Black | Grey | Brown
+
+Once the order is confirmed, we will share an official invoice; after which you can pay via GPay, PayTM, UPI or bank transfer.
+
+Looking forward to serving you soon!
+Team ARMORX
+`;
+
   const invoiceDisplay = document.createElement('div');
   invoiceDisplay.id = 'invoiceDisplay';
   invoiceDisplay.style.marginTop = '20px';
   invoiceDisplay.innerHTML = `<pre>${invoiceMessage}</pre>`;
+
   const adminMessageArea = document.getElementById('adminMessageArea');
   adminMessageArea.appendChild(invoiceDisplay);
 }
-
 // ---------------------- Admin Panel ----------------------
 function toggleAdminInterface() {
     isAdminVisible = !isAdminVisible;
@@ -637,3 +674,4 @@ function toggleFaq(faqElement) {
         }
     }
 }
+
