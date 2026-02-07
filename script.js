@@ -471,7 +471,6 @@ REP CODE:
 Free express delivery in *48-72 working hours.*
 
 To confirm the above order please share:
-
 🔹*Name, Address, Pincode, Phone Number and Email ID*
 🔹*Preferred Color:* Black | Grey | Brown
 
@@ -674,4 +673,5 @@ function toggleFaq(faqElement) {
         }
     }
 }
+
 
