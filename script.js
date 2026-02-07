@@ -264,6 +264,11 @@ const doorNetPrices = {
 
 // ---------------------- Main Calculation Logic ----------------------
 function calculateSizes() {
+     // Hide the bottom WhatsApp icon once the calculation is initiated
+    const supportIcon = document.querySelector('.whatsapp-icon-bottom');
+    if (supportIcon) {
+        supportIcon.style.display = 'none';
+    }
     const unit = document.getElementById('unit').value;
     const numWindows = parseInt(document.getElementById('numWindows').value);
     const messageArea = document.getElementById('messageArea');
@@ -605,6 +610,18 @@ document.getElementById('unit').addEventListener('change', function () {
         if (widthInput) widthInput.placeholder = `Enter Width in ${selectedUnit}`;
     }
 });
+
+// Trigger shake animation on the bottom-right WhatsApp icon every 10 seconds
+setInterval(() => {
+  const icon = document.querySelector('.whatsapp-icon-bottom');
+  if (icon) {
+    icon.classList.add('shake');
+    // Remove the shake class after the animation duration (0.5s)
+    setTimeout(() => {
+      icon.classList.remove('shake');
+    }, 50);
+  }
+}, 1000);
 
 function toggleFaq(faqElement) {
     const answer = faqElement.nextElementSibling;
